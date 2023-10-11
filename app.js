@@ -9,10 +9,10 @@ var https = require('https');
 var fs = require('fs');
 const app = express();
 
-var options = {
-    key: fs.readFileSync('certificate/key.pem'),
-    cert: fs.readFileSync('certificate/cert.pem')
-  };
+// var options = {
+//     key: fs.readFileSync('certificate/key.pem'),
+//     cert: fs.readFileSync('certificate/cert.pem')
+//   };
 
 // Configure sessions
 app.use(session({ secret: 'your-secret-key', resave: true, saveUninitialized: true }));
@@ -81,7 +81,10 @@ app.get('/auth/instagram/callback', passport.authenticate('instagram', {
 
 app.get('/', (req, res) => {
     // res.render('index');
-    res.json('login')
+
+    res.json({
+        user:req.user
+    })
 });
 // app.get('/profile', (req, res) => {
 //     if (!req.isAuthenticated()) {
