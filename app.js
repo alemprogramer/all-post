@@ -8,11 +8,13 @@ const morgan = require('morgan')
 var https = require('https');
 var fs = require('fs');
 const app = express();
+const axios = require('axios')
+const fbRouter = require('./router/facebookRouter')
 
-// var options = {
-//     key: fs.readFileSync('certificate/key.pem'),
-//     cert: fs.readFileSync('certificate/cert.pem')
-//   };
+var options = {
+    key: fs.readFileSync('certificate/key.pem'),
+    cert: fs.readFileSync('certificate/cert.pem')
+  };
 
 // Configure sessions
 app.use(session({ secret: 'your-secret-key', resave: true, saveUninitialized: true }));
@@ -20,12 +22,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(morgan('dev'))
 
+app.use('/fb',fbRouter)
+
 
 // https://graph.facebook.com/v18.0
 // Configure Facebook strategy
 passport.use(new FacebookStrategy({
-    clientID: `520241122718225`,
-    clientSecret: `87201d1d45609fd399dfb1e34cb90173`,
+    clientID: `5109107729167022`,
+    clientSecret: `dc4dc755d731a7bfd189b4fd54b9176e`,
     callbackURL: 'http://localhost:3000/auth/facebook/callback', // Your callback URL
     profileFields: ['id', 'displayName', 'email'],
     scope:['pages_show_list','pages_read_user_content']
@@ -48,7 +52,7 @@ passport.use(new InstagramStrategy({
 }, (accessToken, refreshToken, profile, done) => {
     console.log("🚀 ~ file: app.js:34 ~ accessToken instagram:", accessToken)
     // Save the user profile data to your database or use it as needed
-    return done(null, profile);
+    return done(null, 'profile');
 }));
 
 // Serialize and deserialize user
@@ -79,6 +83,29 @@ app.get('/auth/instagram/callback', passport.authenticate('instagram', {
     failureRedirect: '/' // Redirect to the home page on failure
 }));
 
+app.get('/token',async (req, res, next) => {
+    const data = {
+        client_id: "2658453617636886",
+        client_secret:'2128d58b1ab44eb0c10dc2c507e79da3',
+        redirect_uri:'https://localhost:3000/auth/instagram/callback',
+        grant_type:'authorization_code',
+        code: 'AQCisgybN16f-QRoA8TtRP3s8uq5exFelI4wrUXiJcue0KhqoILjSr1GxsrDclzOW6M5j50KM44ddZR2eUHqDt2WYsn805Qgzn3kqoYatxPZH-mfzig8hFm1yNiL6J8G7H0LKo5TwCG_X3kYuKBa8UacIraeRm7WvYdgz_k9HgzXHocEp-bOKAo7SaiTStVraUCRd55MlAXK1tYIkvcRcBPTKW7X97NVjn5ihiegUlc5lw'
+    }
+// Define the API URL
+const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+ 
+    const apiUrl = await axios.post(`https://api.instagram.com/oauth/access_token`,data,{ headers });
+
+// Make the HTTPS request
+    res.json(apiUrl.data)
+})
+
+app.get('/login',(req, res) =>{
+    res.redirect('https://api.instagram.com/oauth/authorize/?client_id=2658453617636886&redirect_uri=https://localhost:3000/auth/instagram/callback&response_type=code&scope=user_profile,user_media&client_secret=2128d58b1ab44eb0c10dc2c507e79da3')
+})
+
 app.get('/', (req, res) => {
     // res.render('index');
 
@@ -93,11 +120,11 @@ app.get('/', (req, res) => {
 //     }
 //     res.render('profile', { user: req.user });
 // });
-
-// https.createServer(options, app).listen(port, () => {
-//     console.log(`Server is running on port ${port}`);
-// });
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`server listening on port ${PORT}`);
-})
+
+https.createServer(options, app).listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+// app.listen(PORT, () => {
+//     console.log(`server listening on port ${PORT}`);
+// })
