@@ -1,5 +1,8 @@
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
+const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
+const TwitterStrategy = require('passport-twitter').Strategy;
+
 
 
 
@@ -7,12 +10,11 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 //facebook strategy
 passport.use(new FacebookStrategy({
   clientID: `5109107729167022`,
-    clientSecret: `dc4dc755d731a7bfd189b4fd54b9176e`,
-    callbackURL: 'http://localhost:3000/auth/facebook/callback', // Your callback URL
-    profileFields: ['id', 'displayName', 'email'],
-    scope:['pages_show_list','pages_read_user_content','pages_show_list', 'instagram_basic', 'instagram_content_publish'],
-    state: true
-
+  clientSecret: `dc4dc755d731a7bfd189b4fd54b9176e`,
+  callbackURL: 'http://localhost:3000/auth/facebook/callback', // Your callback URL
+  profileFields: ['id', 'displayName', 'email'],
+  scope:['pages_show_list','pages_read_user_content','pages_show_list', 'instagram_basic', 'instagram_content_publish'],
+  state: true
 },
 
   function (accessToken, refreshToken, profile, done) {
@@ -38,6 +40,46 @@ passport.use(new FacebookStrategy({
     //   }
     // });
   }
+));
+
+passport.use(new LinkedInStrategy({
+  clientID: '86vnlcrqkzgx9e',
+  clientSecret: '45oajbL80sEwpndw',
+  callbackURL: 'http://localhost:3000/auth/linkedin/callback',
+  scope: ['r_emailaddress', 'r_liteprofile'],
+}, function (token, tokenSecret, profile, done) {
+  console.log("🚀 ~ file: passport.js:50 ~ profile:", profile)
+  console.log("🚀 ~ file: passport.js:50 ~ tokenSecret:", tokenSecret)
+  console.log("🚀 ~ file: passport.js:50 ~ token:", token)
+  return done(null, profile);
+}
+));
+
+passport.use(new LinkedInStrategy({
+  clientID: '86vnlcrqkzgx9e',
+  clientSecret: '45oajbL80sEwpndw',
+  callbackURL: 'http://localhost:3000/auth/linkedin/callback', // Adjust the callback URL
+  scope: ['r_liteprofile','r_emailaddress', 'w_member_social'], // Requested permissions
+},
+(token, tokenSecret, profile, done) => {
+  // You can save or handle the user profile information here
+  return done(null, profile);
+}
+));
+
+
+passport.use(new TwitterStrategy({
+  consumerKey: 'RqmeYeipJjDqwZ1nia0NB9oel',
+  consumerSecret: 'aEG4aqpBVsZiscmjluLPrEBGRplvjBNk4xoTsf5NWFRDxPTUlK',
+  callbackURL: 'http://localhost:3000/auth/twitter/callback', // Adjust the callback URL
+},
+(token, tokenSecret, profile, done) => {
+  console.log("🚀 ~ file: passport.js:77 ~ tokenSecret:", tokenSecret)
+  console.log("🚀 ~ file: passport.js:77 ~ token:", token)
+  // console.log("🚀 ~ file: passport.js:77 ~ profile:", profile)
+  // You can save or handle the user profile information here
+  return done(null, profile);
+}
 ));
 
 

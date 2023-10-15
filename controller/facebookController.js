@@ -47,3 +47,23 @@ exports.fbLoginCallBackController = async function (req, res, next) {
       next(err);
     }
   }
+
+  exports.facebookPostController = async (req, res,next) => {
+    const accessToken = 'EABImtNdQ8q4BO7rEbAzM2tjNnqN1LcWCZBke8jqoZBZCLtyn5iKN6zKsDOV0qQEay2gg3NMs96UZAxmv7itHfjgykZCEEUb4EaVTozZC1hZBZCfu9i2tfL4iIs8b7mrwQjCRZBGYLPPQW0e9UlhkTwDUQZAdHqqqdgfXvixhGnY5fZAeTJW8zZCLfxmowzAAT2JJv8ZAEP1S8q0HJ';
+    const message = 'Hello, Facebook! This is a test post.';
+
+    // Define the API endpoint for posting to the user's feed
+    const apiUrl = `https://graph.facebook.com/v12.0/me/feed`;
+
+    // Create a data object with the post message
+    const postData = {
+    message,
+    access_token: accessToken,
+    };
+
+    // Send a POST request to post to the user's feed
+    const post = await axios.post(apiUrl, postData)
+    console.log("🚀 ~ file: facebookController.js:66 ~ exports.facebookPostController= ~ post:", post)
+   
+    res.send('success')
+  }
