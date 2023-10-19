@@ -11,6 +11,7 @@ var fs = require('fs');
 const app = express();
 const axios = require('axios')
 const fbRouter = require('./router/facebookRouter')
+const twitterRouter = require('./router/twitterRouter')
 
 var options = {
     key: fs.readFileSync('certificate/key.pem'),
@@ -24,6 +25,7 @@ app.use(passport.session());
 app.use(morgan('dev'))
 
 app.use('/auth',fbRouter)
+app.use('/twitter',twitterRouter)
 
 
 app.get('/', (req, res) => {
