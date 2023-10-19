@@ -12,25 +12,18 @@
   "license": "ISC",
   "dependencies": {
     "@superfaceai/one-sdk": "^2.4.2",
-    "@superfaceai/passport-twitter-oauth2": "^1.2.3",
     "axios": "^1.5.1",
     "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "morgan": "^1.10.0",
-    "oauth": "^0.10.0",
-    "oauth-1.0a": "^2.2.6",
     "passport": "^0.6.0",
     "passport-facebook": "^3.0.0",
     "passport-instagram": "^1.0.0",
     "passport-linkedin-oauth2": "^2.0.0",
     "passport-twitter": "^1.0.4",
-    "passport-twitter-oauth2.0": "^1.1.0",
-    "querystring": "^0.2.1",
-    "twit": "^2.2.11",
-    "twitter": "^1.7.1",
-    "twitter-api-v2": "^1.15.2",
-    "twitter-lite": "^1.1.0"
+    "twitter-api-v2": "^1.15.2"
+    
   }
 }
