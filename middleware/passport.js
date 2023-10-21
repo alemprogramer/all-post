@@ -39,14 +39,17 @@ passport.use(new FacebookStrategy({
 ));
 
 passport.use(new LinkedInStrategy({
-  clientID: '86ribt9bfy52gk',
-  clientSecret: 'a6Eyo1crcetlvqyo',
+  clientID:'86ushza2suvs3a',
+  clientSecret:'i2EN5Vq8AKlPcb7h',
   callbackURL: 'http://localhost:3000/auth/linkedin/callback',
-  scope: ['r_basicprofile', 'r_emailaddress'],
-}, function (token, tokenSecret, profile, done) {
+  scope: [
+    'profile', 'email', 'openid', 'w_member_social'],
+  // state:true
+}, function (accessToken, refreshToken, profile, done) {
+  console.log("🚀 ~ file: passport.js:48 ~ refreshToken:", refreshToken)
+  console.log("🚀 ~ file: passport.js:48 ~ accessToken:", accessToken)
   console.log("🚀 ~ file: passport.js:50 ~ profile:", profile)
-  console.log("🚀 ~ file: passport.js:50 ~ tokenSecret:", tokenSecret)
-  console.log("🚀 ~ file: passport.js:50 ~ token:", token)
+
   return done(null, profile);
 }
 ));

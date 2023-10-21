@@ -20,8 +20,8 @@ exports.twitterLoginCallbackController = async (req,res) => {
   const { state, code } = req.query;
   // Get the saved codeVerifier from session
 
-  const codeVerifier = "aVaCi5YgV8zNGCuCbCptvO9jmnR0y87xUsA4DHiSQrvOEZqhCrbXvL~WMS5u8nacLlF908CyDKnRh8fAM9Dw7n3PIahUB4yetup8dstr_OX2L-H--1MfAs13grr9IANM" //TODO: data save in data and get from it
-  const sessionState = "P4UZXd7n5L2Pv~Jeq_RcROTIrNvWSonV"  //TODO: data save in data and get from it  
+  const codeVerifier = "A~xaoW__dVCQ9JKF~Sr2jS_vWXG01AaPc5Kbk4OqjkTb5WnNeR~E9Qrt1jobMotFvPAOVW.sbzGCu_GkBsML6cTv9y3SpHcktePTtmm7EsQin2WCrn_PD06ZLFyRP552" //TODO: data save in data and get from it
+  const sessionState = "6WdX1el0FQsGk~OmBqBK.YKisUr54r4n"  //TODO: data save in data and get from it  
 
 
   if (!codeVerifier || !state || !sessionState || !code) {
@@ -54,9 +54,9 @@ exports.twitterLoginCallbackController = async (req,res) => {
 
 // twitter tweet post controller 
 exports.twitterTweetPostController = async (req,res,next) => {
-  const client = new TwitterApi('d3dnYjVpYjBHNVB2SnUzemFYNEY3LUpWb0FlUXlId1QwOWxreXl6TUNsSEo2OjE2OTc3MDUzODk2NzU6MToxOmF0OjE');//TODO: give accessToken value from database
+  const client = new TwitterApi('Z3QtQjV5UUh3X1NKNS0tRlVRNUY2RmlaU0Q1YVZ6TERBWHVxUnV3VkxkSEFyOjE2OTc3MDc2MTMyNjM6MToxOmF0OjE');//TODO: give accessToken value from database
 
-  let data =  await client.v2.tweet('twitter-api-v212 is awesome! from Hasib');//TODO: tweet test 
+  let data =  await client.v2.tweet('twitter-api-v215 is awesome! from Hasib');//TODO: tweet test 
   //TODO:  adding image and poll
   res.json(data);
 };

@@ -17,6 +17,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
+    "linkedin-api-client": "^0.3.0",
     "morgan": "^1.10.0",
     "passport": "^0.6.0",
     "passport-facebook": "^3.0.0",
@@ -24,6 +25,5 @@
     "passport-linkedin-oauth2": "^2.0.0",
     "passport-twitter": "^1.0.4",
     "twitter-api-v2": "^1.15.2"
-    
   }
 }

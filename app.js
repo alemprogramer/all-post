@@ -12,6 +12,7 @@ const app = express();
 const axios = require('axios')
 const fbRouter = require('./router/facebookRouter')
 const twitterRouter = require('./router/twitterRouter')
+const linkedinRouter = require('./router/linkedinRouter')
 
 var options = {
     key: fs.readFileSync('certificate/key.pem'),
@@ -19,13 +20,18 @@ var options = {
   };
 
 // Configure sessions
-app.use(session({ secret: 'your-secret-key', resave: true, saveUninitialized: true }));
+app.use(session({ 
+    secret: 'your-secret-key',
+    resave: true,
+    saveUninitialized: true,
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(morgan('dev'))
 
 app.use('/auth',fbRouter)
-app.use('/twitter',twitterRouter)
+app.use('/twitter',twitterRouter);
+app.use('/linkedin',linkedinRouter);
 
 
 app.get('/', (req, res) => {
