@@ -34,6 +34,28 @@ app.use('/twitter',twitterRouter);
 app.use('/linkedin',linkedinRouter);
 
 
+
+
+app.use((req,res,next) => {
+    let error = new Error('404 page not found');
+    error.status = 404;
+    next(error);
+})
+app.use((err, req, res, next) => {
+    if(err.status === 404){
+       return res.status(404).json({
+            message: 'Data not Found'
+       });
+    }
+    console.log(err);
+    res.status(500).json({
+        message: 'internal server error'
+   });
+
+  
+})
+
+
 app.get('/', (req, res) => {
     res.send('ok');
 });
