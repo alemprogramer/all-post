@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const mongoose = require('mongoose');
 
 //for https protocol
 var https = require('https');
@@ -52,6 +53,12 @@ const PORT = process.env.PORT || 3000;
 //     console.log(`Server is running on port ${PORT}`);
 // });
 
-app.listen(PORT, () => {
-    console.log(`server listening on port ${PORT}`);
+mongoose.connect(process.env.DATABASE_URL)
+.then(() => {
+    console.log('DB Connected to server');
+    app.listen(PORT, () => {
+        console.log(`server listening on port ${PORT}`);
+    })
 })
+
+
