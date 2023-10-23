@@ -8,8 +8,6 @@ const app = express();
 
 const middleware = require('./middleware/middlewres');
 const fbRouter = require('./router/facebookRouter')
-const twitterRouter = require('./router/twitterRouter')
-const linkedinRouter = require('./router/linkedinRouter')
 
 const router = require('./router/router')   
 
@@ -20,14 +18,6 @@ var options = {
 
 middleware(app)
 router(app)
-
-
-app.use('/auth',fbRouter)
-app.use('/twitter',twitterRouter);
-app.use('/linkedin',linkedinRouter);
-
-
-
 
 app.use((req,res,next) => {
     let error = new Error('404 page not found');

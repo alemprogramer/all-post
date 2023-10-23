@@ -1,5 +1,5 @@
 const { TwitterApi }=require('twitter-api-v2');
-const CALLBACK_URL = 'http://127.0.0.1:3000/auth/twitter/callback'
+const CALLBACK_URL = 'http://127.0.0.1:3000/api/v1/twitter/callback'
 const client = new TwitterApi({
     clientId: 'cnRtUXlndWdES0RlQmxaWUQtaC06MTpjaQ',
     clientSecret: 'LhBS1CfzRfi-bed2XQt5VcBDH4b_NbpVZ31xg7Q8ZuXppXs3hX',

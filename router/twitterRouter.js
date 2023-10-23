@@ -1,9 +1,14 @@
 const router = require('express').Router();
 const passport = require('../middleware/passport')
 
-const {twitterTweetPostController} = require('../controller/twitterController')
+const {twitterLoginController,twitterLoginCallbackController,twitterTokenRefreshController,twitterTweetPostController} = require('../controller/twitterController')
 
-router.get('/tweet-post',twitterTweetPostController)
+
+router.get('/login', twitterLoginController);
+router.get('/callback',twitterLoginCallbackController);
+router.get('/refreshToken',twitterTokenRefreshController);
+router.get('/tweet-post',twitterTweetPostController);
+
 router.get('/',(req,res)=>{
     res.send('twitter ok');
 });

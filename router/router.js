@@ -1,5 +1,6 @@
-const facebookRouter = require('./facebookRouter')
-const linkedinRouter = require('./linkedinRouter')
+const facebookRouter = require('./facebookRouter');
+const linkedinRouter = require('./linkedinRouter');
+const twitterRouter = require('./twitterRouter');
 const routers = [
     {
         path: '/api/v1/facebook',
@@ -9,7 +10,10 @@ const routers = [
         path: '/api/v1/linkedin',
         handler:linkedinRouter
     },
-
+    {
+        path: '/api/v1/twitter',
+        handler:twitterRouter
+    },
     {
         path: '/ok/thx',
         handler:(req,res)=>{
