@@ -1,15 +1,12 @@
 require('dotenv').config();
 const express = require('express');
-// const passport = require('passport');
-// const FacebookStrategy = require('passport-facebook').Strategy;
-const passport = require('./middleware/passport')
 
-const session = require('express-session');
-const morgan = require('morgan')
+
 var https = require('https');
 var fs = require('fs');
 const app = express();
-const axios = require('axios')
+
+const middleware = require('./middleware/middlewres');
 const fbRouter = require('./router/facebookRouter')
 const twitterRouter = require('./router/twitterRouter')
 const linkedinRouter = require('./router/linkedinRouter')
@@ -19,15 +16,7 @@ var options = {
     cert: fs.readFileSync('certificate/cert.pem')
   };
 
-// Configure sessions
-app.use(session({ 
-    secret: 'your-secret-key',
-    resave: true,
-    saveUninitialized: true,
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(morgan('dev'))
+middleware(app)
 
 app.use('/auth',fbRouter)
 app.use('/twitter',twitterRouter);
