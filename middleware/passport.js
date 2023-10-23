@@ -54,17 +54,7 @@ passport.use(new LinkedInStrategy({
 }
 ));
 
-// passport.use(new LinkedInStrategy({
-//   clientID: '86ribt9bfy52gk',
-//   clientSecret: 'a6Eyo1crcetlvqyo',
-//   callbackURL: 'http://localhost:3000/auth/linkedin/callback', // Adjust the callback URL
-//   scope: ['r_emailaddress', 'r_liteprofile'],// Requested permissions
-// },
-// (token, tokenSecret, profile, done) => {
-//   // You can save or handle the user profile information here
-//   return done(null, profile);
-// }
-// ));
+
 
 
 
