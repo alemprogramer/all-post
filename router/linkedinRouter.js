@@ -1,10 +1,11 @@
 const router = require('express').Router();
 
-const {postInLinkedInController} = require('../controller/linkedinController');
+const { linkedinLoginController, linkedinCallbackUrlController, postInLinkedInController} = require('../controller/linkedinController');
 
 
-router.get('/post',postInLinkedInController)
-
+router.get('/login', linkedinLoginController);
+router.get('/callback',linkedinCallbackUrlController);
+router.get('/post',postInLinkedInController);
 
 
 module.exports = router;

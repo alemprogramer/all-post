@@ -3,7 +3,7 @@ const { AuthClient,RestliClient } = require('linkedin-api-client');
 const params = {
   clientId:'86ushza2suvs3a',
   clientSecret:'i2EN5Vq8AKlPcb7h',
-  redirectUrl: 'http://localhost:3000/auth/linkedin/callback',
+  redirectUrl: 'http://localhost:3000/api/v1/linkedin/callback',
   enabled:true,
   logSuccessResponses:true,
   

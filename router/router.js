@@ -1,8 +1,13 @@
 const facebookRouter = require('./facebookRouter')
+const linkedinRouter = require('./linkedinRouter')
 const routers = [
     {
         path: '/api/v1/facebook',
         handler:facebookRouter
+    },
+    {
+        path: '/api/v1/linkedin',
+        handler:linkedinRouter
     },
 
     {
