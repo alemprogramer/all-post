@@ -11,12 +11,16 @@ const fbRouter = require('./router/facebookRouter')
 const twitterRouter = require('./router/twitterRouter')
 const linkedinRouter = require('./router/linkedinRouter')
 
+const router = require('./router/router')   
+
 var options = {
     key: fs.readFileSync('certificate/key.pem'),
     cert: fs.readFileSync('certificate/cert.pem')
   };
 
 middleware(app)
+router(app)
+
 
 app.use('/auth',fbRouter)
 app.use('/twitter',twitterRouter);
