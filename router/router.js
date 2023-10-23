@@ -1,6 +1,7 @@
 const facebookRouter = require('./facebookRouter');
 const linkedinRouter = require('./linkedinRouter');
 const twitterRouter = require('./twitterRouter');
+
 const routers = [
     {
         path: '/api/v1/facebook',
@@ -15,14 +16,9 @@ const routers = [
         handler:twitterRouter
     },
     {
-        path: '/ok/thx',
+        path: '/',
         handler:(req,res)=>{
-            let arr = ['ok', 'th'];
-            let path = req.originalUrl.split('/')[2]
-            if(req.params){
-                path = path.split('?')[0]
-            }
-            res.send('arr.includes(path)')
+            res.send('<center><h1>Welcome to Post All API v1</h1></center>')
         }
     },
 ];
