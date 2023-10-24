@@ -6,6 +6,8 @@ const {
 } = require("../utils/tokenCreate");
 const { validateEmail } = require("../utils/emailValidator");
 
+const setToken = require("../utils/cookieSet");
+
 exports.userSignupController = async (req, res, next) => {
     const {email} = req.body;
   try {
@@ -34,7 +36,32 @@ exports.userSignupController = async (req, res, next) => {
 };
 
 exports.userLoginController = async (req, res, next) => {
+  const { email, password } = req.body;
   try {
+    const user = await User.findOne({ email});
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid Credentials",
+      });
+    }
+
+    const checkPassword =await  bcrypt.compare(password,user.password)
+
+    if(!checkPassword){
+        return res.status(400).json({
+            message: "Invalid Credentials,pass",
+          });
+    }
+
+    const refresh_token = createRefreshToken({id: user._id}, process.env.REFRESH_TOKEN_SECRET,'30d')
+   
+    const access_token = createAccessToken({id: user.id}, process.env.ACCESS_TOKEN_SECRET,'50m');
+
+    setToken(refresh_token, access_token,res);
+    
+    res.json({message:'user login successfully ',refresh_token,access_token});
+    
   } catch (error) {
     next(error);
   }
