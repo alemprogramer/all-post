@@ -15,12 +15,12 @@ exports.userSignupController = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid emails." });
 
     const user = await User.findOne({ email});
-
     if (user) {
       return res.status(400).json({
         message: "User already exists",
       });
     }
+    req.body.name = email.split("@")[0] ;
 
     req.body.password = await bcrypt.hash(req.body.password, 11);
 
@@ -59,7 +59,7 @@ exports.userLoginController = async (req, res, next) => {
     const access_token = createAccessToken({id: user.id}, process.env.ACCESS_TOKEN_SECRET,'50m');
 
     setToken(refresh_token, access_token,res);
-    
+
     res.json({message:'user login successfully ',refresh_token,access_token});
     
   } catch (error) {
