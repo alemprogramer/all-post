@@ -12,6 +12,16 @@ const userSchema = new Schema(
       unique: true,
     },
     password: String,
+
+    //twitter
+    twitterCodeVerifier:String,
+    twitterSessionState:String,
+    twitterAccessToken:String,
+    twitterRefreshToken:String,
+
+    
+
+
   },
   {
     timestamps: true,

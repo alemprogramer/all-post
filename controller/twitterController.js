@@ -1,64 +1,79 @@
 const { TwitterApi }=require('twitter-api-v2');
-const CALLBACK_URL = 'http://127.0.0.1:3000/api/v1/twitter/callback'
+const CALLBACK_URL = process.env.TWITTER_CALLBACK_URL 
 const client = new TwitterApi({
-    clientId: 'cnRtUXlndWdES0RlQmxaWUQtaC06MTpjaQ',
-    clientSecret: 'LhBS1CfzRfi-bed2XQt5VcBDH4b_NbpVZ31xg7Q8ZuXppXs3hX',
+    clientId: process.env.TWITTER_CLIENT_ID ,
+    clientSecret: process.env.TWITTER_CLIENT_SECRET ,
 });
+
+const axios = require('axios');
+
+const User = require('../model/User')
 
 //twitter login url generator api 
 exports.twitterLoginController = async (req, res, next) => {
   const { url, codeVerifier, state } = client.generateOAuth2AuthLink(CALLBACK_URL, { scope: ['tweet.read','tweet.write', 'users.read', 'offline.access'] });
   // Redirect your user to {url}, store {state} and {codeVerifier} into a DB/Redis/memory after user redirection
-  res.json({
-      url,
-      codeVerifier,
-      state,
-  })
+  req.session.codeVerifier = codeVerifier;
+  console.log("🚀 ~ file: twitterController.js:15 ~ exports.twitterLoginController= ~ codeVerifier:", codeVerifier)
+  req.session.sessionState = state;
+  console.log("🚀 ~ file: twitterController.js:17 ~ exports.twitterLoginController= ~ state:", state)
+  req.session.save();
+  // res.json({
+  //     url,
+  //     codeVerifier,
+  //     state,
+  // })
+  res.redirect(url);
 }
 
-exports.twitterLoginCallbackController = async (req,res) => {
+exports.twitterLoginCallbackController = async (req,res,next) => {
   const { state, code } = req.query;
   // Get the saved codeVerifier from session
+  const codeVerifier = req.session.codeVerifier;
+  const sessionState = req.session.sessionState;
+  try {
+    // if (!codeVerifier || !state || !sessionState || !code) {
+  //   return res.status(400).send('You denied the app or your session expired!');
+  // }
+  // if (state !== sessionState) {
+  //   return res.status(400).send('Stored tokens didnt match!');
+  // }
 
-  const codeVerifier = "A~xaoW__dVCQ9JKF~Sr2jS_vWXG01AaPc5Kbk4OqjkTb5WnNeR~E9Qrt1jobMotFvPAOVW.sbzGCu_GkBsML6cTv9y3SpHcktePTtmm7EsQin2WCrn_PD06ZLFyRP552" //TODO: data save in data and get from it
-  const sessionState = "6WdX1el0FQsGk~OmBqBK.YKisUr54r4n"  //TODO: data save in data and get from it  
-
-
-  if (!codeVerifier || !state || !sessionState || !code) {
-    return res.status(400).send('You denied the app or your session expired!');
-  }
-  if (state !== sessionState) {
-    return res.status(400).send('Stored tokens didnt match!');
-  }
-
-
-  client.loginWithOAuth2({ code, codeVerifier, redirectUri: CALLBACK_URL })
-    .then(async ({ client: loggedClient, accessToken, refreshToken, expiresIn }) => {
+  const { client: loggedClient, accessToken, refreshToken, expiresIn } = await client.loginWithOAuth2({ code, codeVerifier, redirectUri: CALLBACK_URL })
+  
       console.log("🚀 ~ file: facebookRouter.js:111 ~ .then ~ refreshToken:", refreshToken)//TODO: data save in data and get from it
       console.log("🚀 ~ file: facebookRouter.js:111 ~ .then ~ accessToken:", accessToken)//TODO: data save in data and get from it
-      // {loggedClient} is an authenticated client in behalf of some user
-      // Store {accessToken} somewhere, it will be valid until {expiresIn} is hit.
-      // If you want to refresh your token later, store {refreshToken} (it is present if 'offline.access' has been given as scope)
+    
+   
+    //   // Example request
+      // const { data: userObject } = await loggedClient.v2.me();
+      // console.log("🚀 ~ file: twitterController.js:50 ~ exports.twitterLoginCallbackController= ~ userObject:", userObject)
+    
 
-      // Example request
-      const { data: userObject } = await loggedClient.v2.me();
+  res.json('ok')
+  } catch (error) {
+    next(error);
+  }
 
-      
-      console.log("🚀 ~ file: facebookRouter.js:119 ~ .then ~ userObject:", userObject)
-    })
-    .catch(() => res.status(403).send('Invalid verifier or access tokens!'));
-
-  res.send('ok')
+  
   
 }
 
 // twitter tweet post controller 
 exports.twitterTweetPostController = async (req,res,next) => {
-  const client = new TwitterApi('Z3QtQjV5UUh3X1NKNS0tRlVRNUY2RmlaU0Q1YVZ6TERBWHVxUnV3VkxkSEFyOjE2OTc3MDc2MTMyNjM6MToxOmF0OjE');//TODO: give accessToken value from database
 
-  let data =  await client.v2.tweet('twitter-api-v215 is awesome! from Hasib');//TODO: tweet test 
+  try {
+    const client2 = new TwitterApi('WElPWThzaTUxTjBiNW9JdkVPRURzQU84Z1RRNjcydXNVOVVIU3EtdE93RHVfOjE2OTgxNTM3OTE0OTA6MToxOmF0OjE');//TODO: give accessToken value from database
+
+  let data =  await client2.v2.tweet('twitter-api-v215 is awesome! from Hasib');//TODO: tweet test 
   //TODO:  adding image and poll
+
+
   res.json(data);
+  } catch (error) {
+    next(error);
+  }
+  
 };
 
 
@@ -79,6 +94,47 @@ res.json({
   data 
 })
 }
+
+exports.twitterUserDataController = async (req,res,next) => {
+  // const endpoint = `https://api.twitter.com/2/users/by/username/${'LmHossain26919'}?user.fields=profile_image_url`;
+
+  // try {
+  //   const response = await axios.get(endpoint, {
+  //     headers: {
+  //       Authorization: `Bearer ${'UHc0MkFSbFdCZko3MVRhVC1jYm0wVW5ib0VNaFhXU245OUtEYXB5ZkFTQUNvOjE2OTgxNTY5OTU5NTM6MToxOmF0OjE'}`,
+  //     },
+  //   });
+  //   if (response.data?.data?.profile_image_url) {
+  //     return res.json(response.data.data.profile_image_url);
+  //   } else {
+  //     throw new Error("Profile image URL not found");
+  //   }
+  // } catch (error) {
+  //   console.error(error);
+  //   next(error);
+  // }
+
+
+  const bearerToken = 'enQ4WHVUdE5DQ21SUk13SUNneWJQTDdtYm13N1NSOWRlcldiTGNlOERMY09xOjE2OTgxNTkwODUyMzE6MTowOmF0OjE'; // Replace with your actual Bearer Token
+const userId = '1713443930044551168'; // Replace with the user's ID or username
+
+const url = `https://api.twitter.com/2/users/${userId}`;
+const headers = {
+  Authorization: `Bearer ${bearerToken}`,
+};
+
+axios.get(url, { headers })
+  .then((response) => {
+    const userData = response.data.data;
+    console.log('User Data:', userData);
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  });
+
+  res.send('ok')
+}
+
 
 
 
