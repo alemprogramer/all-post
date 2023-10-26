@@ -134,15 +134,18 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
 }
 
 exports.postInLinkedInController = async(req, res, next) => {
-  const ugcPostsCreateResponse = await restClient.create({
+  const {linkedin} = req.user;
+  const {text} = req.body;
+  try {
+    const ugcPostsCreateResponse = await restClient.create({
     resourcePath: '/ugcPosts',
     entity: {
-      author: `urn:li:person:${`8EpntNPLVX`}`,
+      author: `urn:li:person:${linkedin.userId}`,
       lifecycleState: 'PUBLISHED',
       specificContent: {
         'com.linkedin.ugc.ShareContent': {
           shareCommentary: {
-            text: 'Sample text post created with /ugcPosts23 API from linkedin api'
+            text  // text post 
           },
           shareMediaCategory: 'NONE'
         }
@@ -151,9 +154,13 @@ exports.postInLinkedInController = async(req, res, next) => {
         'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
       }
     },
-    accessToken:'AQViXcV9Icknm_eu0C0YvFxQkbE_flGQdEClA10Km04-pH1z96TQJP4D2y4BdOzw9XEfho9PxVML2rBjQcPN9MqdeUO5V8CzjW9InsQlZTK7nj2m4YMFzJHRl9T8Jed2Og4dWeTHojQf-frVN6Zvh3fnsu56ApyP2vYIIQ5mpPKemgg_kdCJ21Pf370Fd3yjVM4-4saNJhwUwjxk2atbIsirUG6yc5hRbSiizG5yn4c0AM5JoiKAirq98HjDTnPG_3TKam9-z2B8N6ABazc9Zi0qFgHMlx689iF1aeyHPmT2mRry6p-syd7-9HSc2l_E9Ic2bK_YQJoe8mDz1c1iXq3z4YmTHw'
+    accessToken:linkedin.accessToken
   });
   console.log("🚀 ~ file: linkedinController.js:62 ~ exports.postInLinkedInController=async ~ ugcPostsCreateResponse:", ugcPostsCreateResponse.data)
   res.json(ugcPostsCreateResponse.data)
+  } catch (error) {
+    next(error)
+  }
+  
 }
 

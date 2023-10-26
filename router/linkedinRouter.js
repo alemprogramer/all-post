@@ -4,7 +4,7 @@ const { linkedinLoginController, linkedinCallbackUrlController, postInLinkedInCo
 
 router.get('/login', linkedinLoginController);
 router.get('/callback',linkedinCallbackUrlController);
-router.get('/post',postInLinkedInController);
+router.post('/post',postInLinkedInController);
 
 
 module.exports = router;
