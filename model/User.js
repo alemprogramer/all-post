@@ -23,7 +23,6 @@ const userSchema = new Schema(
     linkedEmail: String,
     linkedin:{
         email:String,
-        linkedinId:String,// working for password
         name:String,
         proPic:String,
         accessToken:String,
