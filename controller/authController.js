@@ -6,7 +6,7 @@ const {
 } = require("../utils/tokenCreate");
 const { validateEmail } = require("../utils/emailValidator");
 
-const setToken = require("../utils/cookieSet");
+const {setToken} = require("../utils/cookieSet");
 
 exports.userSignupController = async (req, res, next) => {
     const {email} = req.body;
