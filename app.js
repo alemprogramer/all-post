@@ -8,7 +8,7 @@ var https = require('https');
 var fs = require('fs');
 
 
-const middleware = require('./middleware/middlewres');
+const middleware = require('./middleware/middlewares');
 const router = require('./router/router')   
 
 //for https protocol
@@ -43,9 +43,10 @@ app.use((err, req, res, next) => {
 })
 
 
-app.get('/', (req, res) => {
-    res.send('welcome to post all api v1');
-});
+// app.get('/test', (req, res) => {
+//     console.log(req.user,req.id);
+//     res.send('welcome to post all api v1');
+// });
 
 const PORT = process.env.PORT || 3000;
 

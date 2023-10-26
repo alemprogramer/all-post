@@ -4,6 +4,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const passport = require('./passport')
 const session = require('express-session');
+const authentication = require('../middleware/authMiddleware')
 //store
 
 
@@ -21,7 +22,9 @@ const middleware = [
         saveUninitialized: true,
     }),
     passport.initialize(),
-    passport.session()
+    passport.session(),
+    authentication,
+    
     
 ]
 
