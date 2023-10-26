@@ -1,4 +1,5 @@
 const { AuthClient,RestliClient } = require('linkedin-api-client');
+var Cookies = require('cookies')
 const User = require('../model/User');
 const {
   createRefreshToken,
@@ -31,7 +32,8 @@ exports.linkedinLoginController = async (req, res,next) => {
 }
 
 exports.linkedinCallbackUrlController = async (req,res,next)=>{
-  const { code } = req.query
+  const { code } = req.query;
+  const cookies = new Cookies(req, res);
 
   try {
     const  token = await  authClient.exchangeAuthCodeForAccessToken(code)
@@ -66,11 +68,14 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
        const access_token = createAccessToken({id: userInfo._id}, process.env.ACCESS_TOKEN_SECRET,'50m');
 
         //our own system cookies
-        setToken(refresh_token, access_token,res);
+        
+        cookies.set('access_token', access_token)
+        cookies.set('refresh_token', refresh_token)
         
         //social media cookies
-        cookieSet('linked_AccessToken',token.access_token,res);
-        cookieSet('linked_refreshToken',token.refresh_token,res);
+        cookies.set('linked_AccessToken',token.access_token,res);
+        cookies.set('linked_refreshToken',token.refresh_token,res);
+        cookies.set('yourCookieKey', 'yourCookieValue');
 
         res.status(200).json({
           success:200,
