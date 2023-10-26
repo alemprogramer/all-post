@@ -12,7 +12,7 @@ module.exports = async (req, res, next) => {
     "/api/v1/twitter/login",
     "/api/v1/twitter/callback",
   ]; // Add routes you want to exclude here
-
+try {
   if (excludedRoutes.includes(req.path)) {
     // Skip the global middleware for the excluded routes
     return next();
@@ -28,4 +28,8 @@ module.exports = async (req, res, next) => {
   req.id = data.id;
 
   next();
+} catch (error) {
+  return res.status(400).json({msg: "Invalid Authentication."})
+}
+  
 };
