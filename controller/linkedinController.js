@@ -75,7 +75,6 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
         //social media cookies
         cookies.set('linked_AccessToken',token.access_token,res);
         cookies.set('linked_refreshToken',token.refresh_token,res);
-        cookies.set('yourCookieKey', 'yourCookieValue');
 
         res.status(200).json({
           success:200,
