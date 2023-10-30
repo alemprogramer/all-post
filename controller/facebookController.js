@@ -156,6 +156,53 @@ exports.fbLoginCallBackController = async function (req, res, next) {
     }
   }
 
+  exports.facebookGroupDataCollectController = async (req, res, next) => {
+    try {
+        console.log('id:', req.id);
+        // const user = await User.findById(req.id).populate('facebook')
+        const facebook = await Facebook.findOne({userId: req.id})
+        let allGroups = []
+        let url = `${process.env.FACEBOOK_API_URL}/me/groups?fields=administrator,name,picture{url}&limit=100&access_token=${facebook.accessToken}`;
+        while(url){
+            let response = await axios.get(url);
+            let groups = response.data
+            for(let i = 0; i < groups.data.length; i++) {
+                if(groups.data[i].administrator){
+                    allGroups.push(groups.data[i])
+                }
+            }
+            if(groups.paging.next){
+                url = groups.paging.next
+            }else {
+                url=""
+            }
+        }
+
+        let finalGroup = [];
+        for(let i = 0; i < allGroups.length; i++) {
+            let obj = {
+                groupName:allGroups[i].name,
+                profilePic:allGroups[i].picture.data.url,
+                id:allGroups[i].id,
+                administrator:allGroups[i].administrator,
+            }
+            finalGroup.push(obj)
+        }
+
+        facebook.groups = finalGroup
+        await facebook.save();
+
+        res.status(200).json({
+            status:200,
+            message: 'Facebook Group data collected successfully',
+            // user
+            groups:finalGroup
+        })
+    } catch (error) {
+        next(error);
+    }
+  }
+
   exports.facebookPostController = async (req, res,next) => {
     const accessToken = 'EABImtNdQ8q4BO7rEbAzM2tjNnqN1LcWCZBke8jqoZBZCLtyn5iKN6zKsDOV0qQEay2gg3NMs96UZAxmv7itHfjgykZCEEUb4EaVTozZC1hZBZCfu9i2tfL4iIs8b7mrwQjCRZBGYLPPQW0e9UlhkTwDUQZAdHqqqdgfXvixhGnY5fZAeTJW8zZCLfxmowzAAT2JJv8ZAEP1S8q0HJ';
     const message = 'Hello, Facebook! This is a test post.';

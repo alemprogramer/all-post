@@ -25,15 +25,10 @@ const facebookSchema = new Schema({
             }
           }],
         groups:[{
-            permission:{
-              type:Boolean,
-              default:true
-            },
             groupName:String,
             profilePic:String,
             id:String,
-            groupCategory:String,
-            accessToken:String,
+            administrator:Boolean,
         }],
 });
 
