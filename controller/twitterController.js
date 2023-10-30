@@ -5,6 +5,13 @@ const client = new TwitterApi({
     clientSecret: process.env.TWITTER_CLIENT_SECRET ,
 });
 
+const Cookies = require('cookies')
+
+const {
+  createRefreshToken,
+  createAccessToken,
+} = require("../utils/tokenCreate");
+
 const axios = require('axios');
 
 const User = require('../model/User')
@@ -12,22 +19,17 @@ const User = require('../model/User')
 //twitter login url generator api 
 exports.twitterLoginController = async (req, res, next) => {
   const { url, codeVerifier, state } = client.generateOAuth2AuthLink(CALLBACK_URL, { scope: ['tweet.read','tweet.write', 'users.read', 'offline.access'] });
-  // Redirect your user to {url}, store {state} and {codeVerifier} into a DB/Redis/memory after user redirection
   req.session.codeVerifier = codeVerifier;
-  console.log("🚀 ~ file: twitterController.js:15 ~ exports.twitterLoginController= ~ codeVerifier:", codeVerifier)
   req.session.sessionState = state;
-  console.log("🚀 ~ file: twitterController.js:17 ~ exports.twitterLoginController= ~ state:", state)
   req.session.save();
-  // res.json({
-  //     url,
-  //     codeVerifier,
-  //     state,
-  // })
+
   res.redirect(url);
 }
 
 exports.twitterLoginCallbackController = async (req,res,next) => {
   const { state, code } = req.query;
+  const cookies = new Cookies(req, res);
+
   // Get the saved codeVerifier from session
   const codeVerifier = req.session.codeVerifier;
   const sessionState = req.session.sessionState;
@@ -45,12 +47,53 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
       console.log("🚀 ~ file: facebookRouter.js:111 ~ .then ~ accessToken:", accessToken)//TODO: data save in data and get from it
     
    
-    //   // Example request
-      // const { data: userObject } = await loggedClient.v2.me();
-      // console.log("🚀 ~ file: twitterController.js:50 ~ exports.twitterLoginCallbackController= ~ userObject:", userObject)
-    
+      // Example request
+      const { data: userObject } = await loggedClient.v2.me();
+      console.log("🚀 ~ file: twitterController.js:50 ~ exports.twitterLoginCallbackController= ~ userObject:", userObject)
+      const {id,name} = userObject;
+      const isUser = await User.findOne({'twitter.id':id}) 
+      
+      let userId;
+      if(isUser){
+        console.log(isUser);
+        userId = isUser._id;
+      }else{
+        const user = new User({
+          name,
+          twitter:{
+            id,
+            name,
+            twitterAccessToken:accessToken,
+            twitterRefreshToken:refreshToken
+          },
+          linkedin:{},
+          facebook:[]
+        })
+        let newUser = await user.save();
+        userId = newUser._id;
+      }
 
-  res.json('ok')
+  const refresh_token = createRefreshToken({id: userId}, process.env.REFRESH_TOKEN_SECRET,'30d')
+  const access_token = createAccessToken({id: userId}, process.env.ACCESS_TOKEN_SECRET,'50m');
+
+  //our own system cookies
+  cookies.set('access_token', access_token,{ expires: new Date(Date.now() + 1000 * 60 *60 *24*30) }) //30days
+  cookies.set('refresh_token', refresh_token,{ expires:  new Date(Date.now() + 1000 * 60 * 50)  }) //50 min
+  
+  //social media cookies
+  cookies.set('twitter_AccessToken',accessToken,{ expires:  new Date(Date.now() + 1000 * 60 *60 *24*60)  }); //2 months
+
+  cookies.set('twitter_refreshToken',refreshToken,{ expires:  new Date(Date.now() + 1000 * 60 *60 *24*60)  });
+
+  res.status(201).json({
+      status:200,
+      message: 'User created successfully',
+      refresh_token, 
+      access_token,
+      twitter_AccessToken:accessToken,
+      twitter_refreshToken:refreshToken
+  })
+
   } catch (error) {
     next(error);
   }

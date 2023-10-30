@@ -13,10 +13,15 @@ const userSchema = new Schema(
     password: String,
 
     //twitter
-    twitterCodeVerifier: String,
-    twitterSessionState: String,
-    twitterAccessToken: String,
-    twitterRefreshToken: String,
+    twitter:{
+      twitterEmail:String,
+      name:String,
+      twitterAccessToken: String,
+      id:String,
+      twitterRefreshToken: String,
+    },
+    
+    
 
     //linkedin
     linkedEmail: String,
