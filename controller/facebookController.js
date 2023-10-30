@@ -9,6 +9,7 @@ const {
     createAccessToken,
   } = require("../utils/tokenCreate");
 const axios = require('axios');
+const Facebook = require('../model/Facebook');
 
 
 const sdk = new SuperfaceClient();
@@ -42,7 +43,7 @@ exports.fbLoginCallBackController = async function (req, res, next) {
                 },
             }
             );
-        const facebookPageList = await axios.get(`${process.env.FACEBOOK_API_URL}/me/accounts?fields=picture,name,category,access_token&access_token=${accessToken}`)
+        const facebookPageList = await axios.get(`${process.env.FACEBOOK_API_URL}/me/accounts?fields=instagram_business_account{name},picture,name,category,access_token&access_token=${accessToken}`)
         const instagram = result.unwrap().profiles;
 
         //new code 
@@ -55,37 +56,75 @@ exports.fbLoginCallBackController = async function (req, res, next) {
         //page list formatter
         const listOfPage = []
         for(let i = 0; i<pageList.length ; i++) {
+            let instagramObj;
+            if(pageList[i].instagram_business_account) {
+                let data ;
+                for(let j = 0; j < instagram.length; j++) {
+                    if(instagram[j].id == pageList[i].instagram_business_account.id){
+                        data = instagram[j];
+                        break;
+                    }
+                }
+                console.log("🚀 ~ file: facebookController.js:62 ~ data:", data)
+                console.log('here');
                 let obj = {
                     id:pageList[i].id,
                     pageName: pageList[i].name,
                     profilePic:pageList[i].picture.data.url,
                     pageCategory:pageList[i].category,
-                    accessToken:pageList[i].access_token
+                    accessToken:pageList[i].access_token,
+                    instagram:{
+                        instagramName:data?.name || "",
+                        profilePic:data?.imageUrl,
+                        id:data.id,
+                        accessToken:accessToken,
+                    }
                 }
                 listOfPage.push(obj)
+                
+            }else{
+                let obj = {
+                    id:pageList[i].id,
+                    pageName: pageList[i].name,
+                    profilePic:pageList[i].picture.data.url,
+                    pageCategory:pageList[i].category,
+                    accessToken:pageList[i].access_token,
+                }
+                listOfPage.push(obj)
+            }
+                
         }
-        console.log("🚀 ~ file: facebookController.js:49 ~ listOfPage:", listOfPage.length)
+        console.log("🚀 ~ file: facebookController.js:49 ~ listOfPage:", listOfPage.instagram)
 
 
         // //group list formatter
         // // TODO: api call and save data
 
         // //instagram list formatter
-        const instagramList = [];
-        for(let i = 0; i<instagram.length ; i++) {
-            let obj = {
-                id:instagram[i].id,
-                pageName: instagram[i].name,
-                profilePic:instagram[i].imageUrl || '',
-                accessToken:accessToken
-            }
-            instagramList.push(obj)
-        }
+        // const instagramList = [];
+        // for(let i = 0; i<instagram.length ; i++) {
+        //     let obj = {
+        //         id:instagram[i].id,
+        //         pageName: instagram[i].name,
+        //         profilePic:instagram[i].imageUrl || '',
+        //         accessToken:accessToken
+        //     }
+        //     instagramList.push(obj)
+        // }
 
-        console.log("🚀 ~ file: facebookController.js:67 ~ instagramList:", instagramList.length)
+        // console.log("🚀 ~ file: facebookController.js:67 ~ instagramList:", instagramList.length)
 
-        if (false) {
+        const isUser = await Facebook.findOne({id})
+
+        if (isUser) {
             // const {pages} = isUser
+            const {pages,instagram} = isUser 
+            //from db
+            
+            return res.json({
+                status:200,
+                pageList
+            })
           
         } else {
             console.log('login');
@@ -96,12 +135,11 @@ exports.fbLoginCallBackController = async function (req, res, next) {
                         accessToken: accessToken,
                         profilePic: photos.value,
                         pages: listOfPage || [],
-                        instagram: instagramList || [],
+                        
                         groups:[]
             })
 
             const fbUser = await facebook.save();
-            console.log("🚀 ~ file: facebookController.js:101 ~ fbUser:", fbUser._id)
 
             const user = new User({
                 name:displayName,
@@ -110,6 +148,10 @@ exports.fbLoginCallBackController = async function (req, res, next) {
             })
            
             let newUser = await user.save();
+
+            const facebookData = await Facebook.findById(fbUser._id);
+            facebookData.userId = newUser._id;
+            await facebookData.save();
             const refresh_token = createRefreshToken({id: newUser._id}, process.env.REFRESH_TOKEN_SECRET,'30d')
             const access_token = createAccessToken({id: newUser._id}, process.env.ACCESS_TOKEN_SECRET,'50m');
 

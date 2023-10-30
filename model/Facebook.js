@@ -2,20 +2,27 @@ const {Schema,model} = require('mongoose');
 
 const facebookSchema = new Schema({
         id:String,
+        userId:{
+          type:Schema.Types.ObjectId,
+          ref:'User',
+        },
         fbEmail:String,
         accessToken:String,
         name:String,
         profilePic:String,
         pages:[{
-            permission:{
-              type:Boolean,
-              default:true,
-            },
             pageName:String,
             profilePic:String,
             id:String,
             pageCategory:String,
             accessToken:String,
+            instagram:{
+              permission:Boolean,
+              instagramName:String,
+              profilePic:String,
+              id:String,
+              accessToken:String,
+            }
           }],
         groups:[{
             permission:{
@@ -28,16 +35,6 @@ const facebookSchema = new Schema({
             groupCategory:String,
             accessToken:String,
         }],
-        instagram:[{
-          permission:{
-              type:Boolean,
-              default:true
-          },
-          instagramName:String,
-          profilePic:String,
-          id:String,
-          accessToken:String,
-        }]
 });
 
 
