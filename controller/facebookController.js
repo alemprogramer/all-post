@@ -96,7 +96,7 @@ exports.fbLoginCallBackController = async function (req, res, next) {
 
 
         const isUser = await Facebook.findOne({id})
-
+        let userIdForToken = '' ;
         if (isUser) {
             const {userId,_id} = isUser ;
             const update = {
@@ -105,11 +105,7 @@ exports.fbLoginCallBackController = async function (req, res, next) {
                 }
             };
             await Facebook.findOneAndUpdate({ _id:_id },update);
-            
-            return res.json({
-                status:200,
-                pageList
-            })
+            userIdForToken=userId
           
         } else {
             console.log('login');
@@ -136,26 +132,25 @@ exports.fbLoginCallBackController = async function (req, res, next) {
             const facebookData = await Facebook.findById(fbUser._id);
             facebookData.userId = newUser._id;
             await facebookData.save();
-            const refresh_token = createRefreshToken({id: newUser._id}, process.env.REFRESH_TOKEN_SECRET,'30d')
-            const access_token = createAccessToken({id: newUser._id}, process.env.ACCESS_TOKEN_SECRET,'50m');
-
-            const expirationTime = new Date(Date.now() + 30 * 1000);
-            //our own system cookies
-            cookies.set('access_token', access_token,{ expires: new Date(Date.now() + 1000 * 60 *60 *24*30) }) //30days
-            cookies.set('refresh_token', refresh_token,{ expires:  new Date(Date.now() + 1000 * 60 * 50)  }) //50 min
-            
-            //social media cookies
-            cookies.set('facebook_AccessToken',accessToken,{ expires:  new Date(Date.now() + 1000 * 60 *60 *24*90)  }); //3 months
-
-            res.status(201).json({
-                status:200,
-                message: 'User created successfully by facebook',
-                refresh_token, 
-                access_token,
-                facebook_AccessToken:accessToken,
-            })
-    
+            userId = newUser._id;
         }
+        const refresh_token = createRefreshToken({id: userIdForToken}, process.env.REFRESH_TOKEN_SECRET,'30d')
+        const access_token = createAccessToken({id: userIdForToken}, process.env.ACCESS_TOKEN_SECRET,'50m');
+
+        //our own system cookies
+        cookies.set('access_token', access_token,{ expires: new Date(Date.now() + 1000 * 60 *60 *24*30) }) //30days
+        cookies.set('refresh_token', refresh_token,{ expires:  new Date(Date.now() + 1000 * 60 * 50)  }) //50 min
+        
+        //social media cookies
+        cookies.set('facebook_AccessToken',accessToken,{ expires:  new Date(Date.now() + 1000 * 60 *60 *24*90)  }); //3 months
+
+        res.status(201).json({
+            status:200,
+            message: 'User created successfully by facebook',
+            refresh_token, 
+            access_token,
+            facebook_AccessToken:accessToken,
+        })
     } catch (err) {
       next(err);
     }
