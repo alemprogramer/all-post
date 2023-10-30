@@ -47,16 +47,12 @@ exports.fbLoginCallBackController = async function (req, res, next) {
         const instagram = result.unwrap().profiles;
 
         //new code 
-        // req.user.profile.pageList = facebookPageList.data;
         const pageList = facebookPageList.data.data;
         const {id,displayName,photos} = req.user.profile
         
-        
-       
         //page list formatter
         const listOfPage = []
         for(let i = 0; i<pageList.length ; i++) {
-            let instagramObj;
             if(pageList[i].instagram_business_account) {
                 let data ;
                 for(let j = 0; j < instagram.length; j++) {
@@ -65,8 +61,6 @@ exports.fbLoginCallBackController = async function (req, res, next) {
                         break;
                     }
                 }
-                console.log("🚀 ~ file: facebookController.js:62 ~ data:", data)
-                console.log('here');
                 let obj = {
                     id:pageList[i].id,
                     pageName: pageList[i].name,
@@ -78,6 +72,7 @@ exports.fbLoginCallBackController = async function (req, res, next) {
                         profilePic:data?.imageUrl,
                         id:data.id,
                         accessToken:accessToken,
+                        permission:true,
                     }
                 }
                 listOfPage.push(obj)
@@ -94,32 +89,22 @@ exports.fbLoginCallBackController = async function (req, res, next) {
             }
                 
         }
-        console.log("🚀 ~ file: facebookController.js:49 ~ listOfPage:", listOfPage.instagram)
 
 
         // //group list formatter
         // // TODO: api call and save data
 
-        // //instagram list formatter
-        // const instagramList = [];
-        // for(let i = 0; i<instagram.length ; i++) {
-        //     let obj = {
-        //         id:instagram[i].id,
-        //         pageName: instagram[i].name,
-        //         profilePic:instagram[i].imageUrl || '',
-        //         accessToken:accessToken
-        //     }
-        //     instagramList.push(obj)
-        // }
-
-        // console.log("🚀 ~ file: facebookController.js:67 ~ instagramList:", instagramList.length)
 
         const isUser = await Facebook.findOne({id})
 
         if (isUser) {
-            // const {pages} = isUser
-            const {pages,instagram} = isUser 
-            //from db
+            const {userId,_id} = isUser ;
+            const update = {
+                $set: {
+                    pages: listOfPage
+                }
+            };
+            await Facebook.findOneAndUpdate({ _id:_id },update);
             
             return res.json({
                 status:200,
@@ -130,13 +115,12 @@ exports.fbLoginCallBackController = async function (req, res, next) {
             console.log('login');
 
             const facebook = new FaceBook({
-                        id:id,
-                        name:displayName,
-                        accessToken: accessToken,
-                        profilePic: photos.value,
-                        pages: listOfPage || [],
-                        
-                        groups:[]
+                id:id,
+                name:displayName,
+                accessToken: accessToken,
+                profilePic: photos.value,
+                pages: listOfPage || [],
+                groups:[]
             })
 
             const fbUser = await facebook.save();
