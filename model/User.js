@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const Facebook = require("./Facebook");
 
 const userSchema = new Schema(
   {
@@ -7,35 +8,34 @@ const userSchema = new Schema(
     },
     email: {
       type: String,
-      required: [true, "please enter a valid email"],
       trim: true,
-      unique: true,
     },
     password: String,
 
     //twitter
-    twitterCodeVerifier:String,
-    twitterSessionState:String,
-    twitterAccessToken:String,
-    twitterRefreshToken:String,
+    twitterCodeVerifier: String,
+    twitterSessionState: String,
+    twitterAccessToken: String,
+    twitterRefreshToken: String,
 
     //linkedin
     linkedEmail: String,
-    linkedin:{
-        email:String,
-        name:String,
-        proPic:String,
-        accessToken:String,
-        expiresInAccessToken:Number,
-        refreshToken:String,
-        expiresInRefreshToken:Number,
-        userId:String
-    }
-    
-
-    
-
-
+    linkedin: {
+      email: String,
+      name: String,
+      proPic: String,
+      accessToken: String,
+      expiresInAccessToken: Number,
+      refreshToken: String,
+      expiresInRefreshToken: Number,
+      userId: String,
+    },
+    facebook: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: Facebook,
+      },
+    ],
   },
   {
     timestamps: true,
