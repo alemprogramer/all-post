@@ -19,7 +19,7 @@ try {
   }
 
   const token = req.header("Authorization");
-  console.log(token);
+  console.log('token:',token);
   if (!token) return res.status(400).json({ msg: "Invalid Authentication" });
   const data = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
   let user = await User.findById(data.id);
