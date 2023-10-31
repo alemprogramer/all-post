@@ -14,7 +14,8 @@ const {
 
 const axios = require('axios');
 
-const User = require('../model/User')
+const User = require('../model/User');
+const Facebook = require('../model/Facebook');
 
 //twitter login url generator api 
 exports.twitterLoginController = async (req, res, next) => {
@@ -43,19 +44,28 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
 
   const { client: loggedClient, accessToken, refreshToken, expiresIn } = await client.loginWithOAuth2({ code, codeVerifier, redirectUri: CALLBACK_URL })
   
-      console.log("🚀 ~ file: facebookRouter.js:111 ~ .then ~ refreshToken:", refreshToken)//TODO: data save in data and get from it
-      console.log("🚀 ~ file: facebookRouter.js:111 ~ .then ~ accessToken:", accessToken)//TODO: data save in data and get from it
     
    
       // Example request
       const { data: userObject } = await loggedClient.v2.me();
-      console.log("🚀 ~ file: twitterController.js:50 ~ exports.twitterLoginCallbackController= ~ userObject:", userObject)
       const {id,name} = userObject;
-      const isUser = await User.findOne({'twitter.id':id}) 
+      const isUser = await User.findOne({'twitter.id':id});
+
       
       let userId;
       if(isUser){
         console.log(isUser);
+        const update = {
+          $set: {
+            'twitter.name': name,
+            'twitter.twitterAccessToken': accessToken,
+            'twitter.twitterRefreshToken': refreshToken,
+            'twitter.id': id
+          }
+        };
+    
+        // Use async/await with findOneAndUpdate
+         await User.findOneAndUpdate({ _id: isUser._id },update);
         userId = isUser._id;
       }else{
         const user = new User({
@@ -104,11 +114,11 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
 
 // twitter tweet post controller 
 exports.twitterTweetPostController = async (req,res,next) => {
-
+  const {text} = req.body;
   try {
-    const client2 = new TwitterApi('WElPWThzaTUxTjBiNW9JdkVPRURzQU84Z1RRNjcydXNVOVVIU3EtdE93RHVfOjE2OTgxNTM3OTE0OTA6MToxOmF0OjE');//TODO: give accessToken value from database
-
-  let data =  await client2.v2.tweet('twitter-api-v215 is awesome! from Hasib');//TODO: tweet test 
+    const {twitter} = await User.findById(req.id);
+    const client2 = new TwitterApi(twitter.twitterAccessToken);//TODO: give accessToken value from database
+    let data =  await client2.v2.tweet(text); //TODO: tweet test 
   //TODO:  adding image and poll
 
 
@@ -123,13 +133,10 @@ exports.twitterTweetPostController = async (req,res,next) => {
 exports.twitterTokenRefreshController = async (req, res, next) =>{
 // Obtain the {refreshToken} from your DB/store
 const { client: refreshedClient, accessToken, refreshToken: newRefreshToken } = await client.refreshOAuth2Token('QUNKU19mQ3YwTjJOSUY2R1p3SFhKeG9ieFdWOWxmN3o2WksyejVLUHFleFNXOjE2OTc3MDUzODk2NzU6MToxOnJ0OjE');
-console.log("🚀 ~ file: twitter.js:77 ~ refreshToken ~ accessToken:", accessToken)
-
 // Store refreshed {accessToken} and {newRefreshToken} to replace the old ones
 
 // Example request
 let data = await refreshedClient.v2.me();
-console.log("🚀 ~ file: twitter.js:83 ~ refreshToken ~ data:", data)
 res.json({
   client: refreshedClient,
   accessToken, 

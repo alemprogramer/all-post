@@ -11,7 +11,7 @@ const {
 router.get("/login", twitterLoginController);
 router.get("/callback", twitterLoginCallbackController);
 router.get("/refreshToken", twitterTokenRefreshController);
-router.get("/tweet-post", twitterTweetPostController);
+router.get("/tweet", twitterTweetPostController);
 router.get("/user-data", twitterUserDataController);
 
 module.exports = router;
