@@ -114,11 +114,23 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
 
 // twitter tweet post controller 
 exports.twitterTweetPostController = async (req,res,next) => {
-  const {text} = req.body;
+  const {text,duration_minutes,options} = req.body;
   try {
     const {twitter} = await User.findById(req.id);
-    const client2 = new TwitterApi(twitter.twitterAccessToken);//TODO: give accessToken value from database
-    let data =  await client2.v2.tweet(text); //TODO: tweet test 
+    const client2 = new TwitterApi(twitter.twitterAccessToken);
+    let data;
+    if(text && duration_minutes && options){
+      data =  await client2.v2.tweet(text,{
+        poll: { 
+          duration_minutes,
+          options//['Absolutely', 'For sure!'] 
+        },
+      }); 
+    }else{
+      data =  await client2.v2.tweet(text);
+    }
+
+    
   //TODO:  adding image and poll
 
 
