@@ -2,22 +2,27 @@ const facebookRouter = require('./facebookRouter');
 const linkedinRouter = require('./linkedinRouter');
 const twitterRouter = require('./twitterRouter');
 const authRouter = require('./authRouter');
+const postRouter = require('./allPostRouter')
 
 const routers = [
     {
-        path: '/api/v1/facebook',
+      path: '/all',
+      handler: postRouter  
+    },
+    {
+        path: '/facebook',
         handler:facebookRouter
     },
     {
-        path: '/api/v1/linkedin',
+        path: '/linkedin',
         handler:linkedinRouter
     },
     {
-        path: '/api/v1/twitter',
+        path: '/twitter',
         handler:twitterRouter
     },
     {
-        path: '/api/v1/auth',
+        path: '/auth',
         handler:authRouter
     },
     {
@@ -32,10 +37,10 @@ const routers = [
 module.exports = (app)=>{
     routers.forEach(router => {
         if(router.path === '/'){
-            app.get(router.path, router.handler);
+            app.get('/api/v1' +router.path, router.handler);
         }
         else{
-        app.use(router.path, router.handler);
+        app.use('/api/v1' +router.path, router.handler);
         }
     });
 }
