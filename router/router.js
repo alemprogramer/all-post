@@ -6,7 +6,7 @@ const postRouter = require('./allPostRouter')
 
 const routers = [
     {
-      path: '/all',
+      path: '/post',
       handler: postRouter  
     },
     {

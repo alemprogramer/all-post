@@ -132,7 +132,7 @@ exports.fbLoginCallBackController = async function (req, res, next) {
             const facebookData = await Facebook.findById(fbUser._id);
             facebookData.userId = newUser._id;
             await facebookData.save();
-            userId = newUser._id;
+            userIdForToken = newUser._id;
         }
         const refresh_token = createRefreshToken({id: userIdForToken}, process.env.REFRESH_TOKEN_SECRET,'30d')
         const access_token = createAccessToken({id: userIdForToken}, process.env.ACCESS_TOKEN_SECRET,'50m');
@@ -204,21 +204,60 @@ exports.fbLoginCallBackController = async function (req, res, next) {
   }
 
   exports.facebookPostController = async (req, res,next) => {
-    const accessToken = 'EABImtNdQ8q4BO7rEbAzM2tjNnqN1LcWCZBke8jqoZBZCLtyn5iKN6zKsDOV0qQEay2gg3NMs96UZAxmv7itHfjgykZCEEUb4EaVTozZC1hZBZCfu9i2tfL4iIs8b7mrwQjCRZBGYLPPQW0e9UlhkTwDUQZAdHqqqdgfXvixhGnY5fZAeTJW8zZCLfxmowzAAT2JJv8ZAEP1S8q0HJ';
-    const message = 'Hello, Facebook! This is a test post.';
+    const {facebook,facebookPageIds,text,images} =req.body;
+    console.log("🚀 ~ file: facebookController.js:208 ~ exports.facebookPostController= ~ text:", text)
+    const { facebook: fb } = req.user
+    try {
+        if(!facebook || !fb.length) {
+          return  next();
+        }
 
-    // Define the API endpoint for posting to the user's feed
-    const apiUrl = `https://graph.facebook.com/v12.0/me/feed`;
+        //set image url 
+        let imageUrl='';
+        for(let i = 0; i < images.length; i++) {
+            imageUrl = imageUrl+'&url='+images[i].image
+        }
+        console.log("🚀 ~ file: facebookController.js:217 ~ exports.facebookPostController= ~ imageUrl:", imageUrl)
 
-    // Create a data object with the post message
-    const postData = {
-    message,
-    access_token: accessToken,
-    };
 
-    // Send a POST request to post to the user's feed
-    const post = await axios.post(apiUrl, postData)
-    console.log("🚀 ~ file: facebookController.js:66 ~ exports.facebookPostController= ~ post:", post)
-   
-    res.send('success')
+        for(let i = 0; i < fb.length; i++) {
+            //facebook page post
+            const facebookPageList = await axios.get(`${process.env.FACEBOOK_API_URL}/me/accounts?fields=name,id,access_token&access_token=${fb[i].accessToken}`)
+            const facebookData = facebookPageList.data.data;
+            console.log("🚀 ~ file: facebookController.js:224 ~ exports.facebookPostController= ~ facebookData:", facebookData.length)
+            //check token is valid or not
+            if(!facebookData.length){
+                return res.status(400).json({
+                    status:'400',
+                    message: 'please login facebook  again'
+                })
+            }
+
+            //collect page token
+            const message = [];
+            for(let i=0; i < facebookData.length; i++){
+                if(facebookPageIds.includes(facebookData[i].id)){
+                    console.log('text',text);
+                    console.log('facebookData[i].id',facebookData[i].id);
+                    console.log('facebookData[i].access_token',facebookData[i].access_token);
+                    // let url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/feed?message=${text}&access_token=${facebookData[i].access_token}`
+                    let url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/photos?url=${images[0].image}?message=${text}&access_token=${facebookData[i].access_token}&published=true`
+                    
+                    console.log("🚀 ~ file: facebookController.js:245 ~ exports.facebookPostController= ~ url:", url)
+                    let response = await axios.post(url)
+                    console.log("🚀 ~ file: facebookController.js:244 ~ exports.facebookPostController= ~ res:", response.data)
+
+                    // message.push(res.data)
+                }
+            }
+            console.log("🚀 ~ file: facebookController.js:234 ~ exports.facebookPostController= ~ message:", message)
+            next();
+
+        }
+
+        
+        
+    } catch (error) {
+        next(error.message);
+    }
   }

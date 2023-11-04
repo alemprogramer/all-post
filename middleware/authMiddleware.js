@@ -20,16 +20,22 @@ try {
 
   const token = req.header("Authorization");
   console.log('token:',token);
-  if (!token) return res.status(400).json({ msg: "Invalid Authentication" });
+  if (!token) return res.status(400).json({
+    status: 400,
+    msg: "Invalid Authentication.",
+  });
   const data = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-  let user = await User.findById(data.id);
+  let user = await User.findById(data.id).populate('facebook');
 
   req.user = user;
   req.id = data.id;
 
   next();
 } catch (error) {
-  return res.status(400).json({msg: "Invalid Authentication."})
+  return res.status(400).json({
+    status: 400,
+    msg: "Invalid Authentication.",
+  })
 }
   
 };
