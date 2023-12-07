@@ -19,7 +19,7 @@ try {
   }
 
   const token = req.header("Authorization");
-  console.log('token:',token);
+  console.log('token:',token || "unauthorized");
   if (!token) return res.status(400).json({
     status: 400,
     msg: "Invalid Authentication.",
