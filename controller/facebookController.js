@@ -156,7 +156,7 @@ exports.fbLoginCallBackController = async function (req, res, next) {
     }
   }
 
-  exports.facebookGroupDataCollectController = async (req, res, next) => {
+exports.facebookGroupDataCollectController = async (req, res, next) => {
     try {
         console.log('id:', req.id);
         // const user = await User.findById(req.id).populate('facebook')
@@ -201,16 +201,18 @@ exports.fbLoginCallBackController = async function (req, res, next) {
     } catch (error) {
         next(error);
     }
-  }
+}
 
-  exports.facebookPostController = async (req, res,next) => {
+exports.facebookPostController = async (req, res,next) => {
     const {facebook,facebookPageIds,text,images} =req.body;
     console.log("🚀 ~ file: facebookController.js:208 ~ exports.facebookPostController= ~ text:", text)
     const { facebook: fb } = req.user
     try {
         if(!facebook || !fb.length) {
-          return  next();
+            console.log('fb is empty');
+            return  next();
         }
+        console.log('fb contains');
 
         //set image url 
         let imageUrl='';
@@ -237,15 +239,15 @@ exports.fbLoginCallBackController = async function (req, res, next) {
             const message = [];
             for(let i=0; i < facebookData.length; i++){
                 if(facebookPageIds.includes(facebookData[i].id)){
-                    console.log('text',text);
-                    console.log('facebookData[i].id',facebookData[i].id);
-                    console.log('facebookData[i].access_token',facebookData[i].access_token);
+                    // console.log('text',text);
+                    // console.log('facebookData[i].id',facebookData[i].id);
+                    // console.log('facebookData[i].access_token',facebookData[i].access_token);
                     // let url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/feed?message=${text}&access_token=${facebookData[i].access_token}`
-                    let url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/photos?url=${images[0].image}?message=${text}&access_token=${facebookData[i].access_token}&published=true`
+                    let url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/photos?url=${images[0]}&message=${text}&access_token=${facebookData[i].access_token}&published=true`
                     
-                    console.log("🚀 ~ file: facebookController.js:245 ~ exports.facebookPostController= ~ url:", url)
+                    // console.log("🚀 ~ file: facebookController.js:245 ~ exports.facebookPostController= ~ url:", url)
                     let response = await axios.post(url)
-                    console.log("🚀 ~ file: facebookController.js:244 ~ exports.facebookPostController= ~ res:", response.data)
+                    // console.log("🚀 ~ file: facebookController.js:244 ~ exports.facebookPostController= ~ res:", response.data)
 
                     // message.push(res.data)
                 }
@@ -260,4 +262,4 @@ exports.fbLoginCallBackController = async function (req, res, next) {
     } catch (error) {
         next(error.message);
     }
-  }
+}
