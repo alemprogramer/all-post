@@ -2,9 +2,11 @@ const jwt = require("jsonwebtoken");
 const User = require("../model/User");
 
 module.exports = async (req, res, next) => {
+  //this array characters must be lower case
   const excludedRoutes = [
     "/api/v1/auth/login",
     "/api/v1/auth/signup",
+    "/api/v1/auth/refreshtoken",
     "/api/v1/facebook/login",
     "/api/v1/facebook/callback",
     "/api/v1/linkedin/login",
@@ -13,7 +15,7 @@ module.exports = async (req, res, next) => {
     "/api/v1/twitter/callback",
   ]; // Add routes you want to exclude here
 try {
-  if (excludedRoutes.includes(req.path)) {
+  if (excludedRoutes.includes(req.path.toLowerCase())) {
     // Skip the global middleware for the excluded routes
     return next();
   }

@@ -1,5 +1,7 @@
 const User = require("../model/User");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
 const {
   createRefreshToken,
   createAccessToken,
@@ -68,7 +70,18 @@ exports.userLoginController = async (req, res, next) => {
 };
 
 exports.refreshTokenController = async (req, res, next) => {
+  let {refreshtoken} = req.body;
   try {
+    const data = await jwt.verify(refreshtoken, process.env.REFRESH_TOKEN_SECRET);
+    let user = await User.findById(data.id);
+
+    const refresh_token = createRefreshToken({id: user._id}, process.env.REFRESH_TOKEN_SECRET,'30d')
+   
+    const access_token = createAccessToken({id: user.id}, process.env.ACCESS_TOKEN_SECRET,'50m');
+
+    setToken(refresh_token, access_token,res);
+
+    res.json({message:'your token  refresh successfully ',refresh_token,access_token});
   } catch (error) {
     next(error);
   }
