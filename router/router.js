@@ -2,9 +2,14 @@ const facebookRouter = require('./facebookRouter');
 const linkedinRouter = require('./linkedinRouter');
 const twitterRouter = require('./twitterRouter');
 const authRouter = require('./authRouter');
-const postRouter = require('./allPostRouter')
+const postRouter = require('./allPostRouter');
+const userRouter = require('./userRouter');
 
 const routers = [
+    {
+        path: '/user',
+        handler: userRouter  
+      },
     {
       path: '/post',
       handler: postRouter  
