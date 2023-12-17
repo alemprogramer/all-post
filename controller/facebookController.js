@@ -205,7 +205,7 @@ exports.facebookGroupDataCollectController = async (req, res, next) => {
 
 exports.facebookPostController = async (req, res,next) => {
     //facebook will be true if any page or group id in the array
-    const {facebook,facebookPageIds,facebookGroupsIds,text,images} =req.body;
+    const {facebook,facebookPageIds,facebookGroupsIds,instagramIds,text,images} =req.body;
     console.log("🚀 ~ file: facebookController.js:208 ~ exports.facebookPostController= ~ text:", text)
     const { facebook: fb } = req.user
     try {
@@ -276,6 +276,9 @@ exports.facebookPostController = async (req, res,next) => {
                 
             }
             
+        }
+        if(instagramIds){
+            console.log("instagramIds");
         }
 
         next();
