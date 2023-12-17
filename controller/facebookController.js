@@ -204,7 +204,8 @@ exports.facebookGroupDataCollectController = async (req, res, next) => {
 }
 
 exports.facebookPostController = async (req, res,next) => {
-    const {facebook,facebookPageIds,text,images} =req.body;
+    //facebook will be true if any page or group id in the array
+    const {facebook,facebookPageIds,facebookGroupsIds,text,images} =req.body;
     console.log("🚀 ~ file: facebookController.js:208 ~ exports.facebookPostController= ~ text:", text)
     const { facebook: fb } = req.user
     try {
@@ -216,13 +217,14 @@ exports.facebookPostController = async (req, res,next) => {
 
         //set image url 
         let imageUrl='';
-        for(let i = 0; i < images.length; i++) {
-            imageUrl = imageUrl+'&url='+images[i].image
-        }
-        console.log("🚀 ~ file: facebookController.js:217 ~ exports.facebookPostController= ~ imageUrl:", imageUrl)
-
-
-        for(let i = 0; i < fb.length; i++) {
+        // for(let i = 0; i < images.length; i++) {
+        //     imageUrl = imageUrl+'&url='+images[i].image
+        // }
+       
+   
+        //TODO: message collect
+        if(facebookPageIds){
+            for(let i = 0; i < fb.length; i++) {
             //facebook page post
             const facebookPageList = await axios.get(`${process.env.FACEBOOK_API_URL}/me/accounts?fields=name,id,access_token&access_token=${fb[i].accessToken}`)
             const facebookData = facebookPageList.data.data;
@@ -242,10 +244,10 @@ exports.facebookPostController = async (req, res,next) => {
                     // console.log('text',text);
                     // console.log('facebookData[i].id',facebookData[i].id);
                     // console.log('facebookData[i].access_token',facebookData[i].access_token);
-                    // let url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/feed?message=${text}&access_token=${facebookData[i].access_token}`
-                    let url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/photos?url=${images[0]}&message=${text}&access_token=${facebookData[i].access_token}&published=true`
-                    
-                    // console.log("🚀 ~ file: facebookController.js:245 ~ exports.facebookPostController= ~ url:", url)
+                    let url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/feed?message=${text}&access_token=${facebookData[i].access_token}`
+                    if(images){
+                        url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/photos?url=${images[0]}&message=${text}&access_token=${facebookData[i].access_token}&published=true`
+                    }
                     let response = await axios.post(url)
                     // console.log("🚀 ~ file: facebookController.js:244 ~ exports.facebookPostController= ~ res:", response.data)
 
@@ -253,13 +255,34 @@ exports.facebookPostController = async (req, res,next) => {
                 }
             }
             console.log("🚀 ~ file: facebookController.js:234 ~ exports.facebookPostController= ~ message:", message)
-            next();
+            
 
         }
+        }
+
+        //TODO: message collect
+        if(facebookGroupsIds){
+
+            for(let i = 0; i < fb.length; i++) {
+                for(let j = 0; j < facebookGroupsIds.length; j++) {
+
+                    let url =`${process.env.FACEBOOK_API_URL}/${facebookGroupsIds[j]}/feed?message=${text}&access_token=${fb[i].accessToken}`
+                    if(images){
+                        url = `${process.env.FACEBOOK_API_URL}/${facebookGroupsIds[j]}/photos?url=${images[0]}&message=${text}&access_token=${fb[i].accessToken}&published=true`
+                    }
+                    let response = await axios.post(url)
+                    console.log('Facebook Groups');
+                }
+                
+            }
+            
+        }
+
+        next();
 
         
         
     } catch (error) {
-        next(error.message);
+        next(error);
     }
 }
