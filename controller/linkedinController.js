@@ -134,27 +134,59 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
 
 exports.postInLinkedInController = async(req, res, next) => {
   const {linkedin} = req.user;
-  const {text} = req.body;
+  const {text,media,linkedin:ldIn} = req.body;
+  console.log("🚀 ~ file: linkedinController.js:138 ~ exports.postInLinkedInController=async ~ media:", media)
   try {
-    const ugcPostsCreateResponse = await restClient.create({
-    resourcePath: '/ugcPosts',
-    entity: {
-      author: `urn:li:person:${linkedin.userId}`,
-      lifecycleState: 'PUBLISHED',
-      specificContent: {
-        'com.linkedin.ugc.ShareContent': {
-          shareCommentary: {
-            text  // text post 
-          },
-          shareMediaCategory: 'NONE'
+    if(!ldIn){
+      console.log('inkedIn is empty');
+      return  next();
+    }
+    let payload = {
+      resourcePath: '/ugcPosts',
+      entity: {
+        author: `urn:li:person:${linkedin.userId}`,
+        lifecycleState: 'PUBLISHED',
+        specificContent: {
+          'com.linkedin.ugc.ShareContent': {
+            shareCommentary: {
+              text  // text post 
+            },
+            shareMediaCategory: 'NONE'
+          }
+        },
+        visibility: {
+          'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
         }
       },
-      visibility: {
-        'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
-      }
-    },
-    accessToken:linkedin.accessToken
-  });
+      accessToken:linkedin.accessToken
+    }
+    // if(media && text){
+    //   payload = {
+    //     resourcePath: '/ugcPosts',
+    //     entity: {
+    //       author: `urn:li:person:${linkedin.userId}`,
+    //       lifecycleState: 'PUBLISHED',
+    //       specificContent: {
+    //         'com.linkedin.ugc.ShareContent': {
+    //           shareCommentary: {
+    //             text  // text post 
+    //           },
+    //           shareMediaCategory: 'IMAGE',
+    //           media: [
+    //             {
+    //               originalUrl: media[0],
+    //             }
+    //           ]
+    //         }
+    //       },
+    //       visibility: {
+    //         'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+    //       }
+    //     },
+    //     accessToken:linkedin.accessToken
+    //   }
+    // }
+    const ugcPostsCreateResponse = await restClient.create(payload);
   console.log("🚀 ~ file: linkedinController.js:62 ~ exports.postInLinkedInController=async ~ ugcPostsCreateResponse:", ugcPostsCreateResponse.data)
   res.json(ugcPostsCreateResponse.data)
   } catch (error) {
