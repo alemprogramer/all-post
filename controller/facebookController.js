@@ -203,100 +203,89 @@ exports.facebookGroupDataCollectController = async (req, res, next) => {
     }
 }
 
+//TODO: message collect
 exports.facebookPostController = async (req, res,next) => {
     //facebook will be true if any page or group id in the array
     const {facebook,facebookPageIds,facebookGroupsIds,instagramIds,text,images} =req.body;
     console.log("🚀 ~ file: facebookController.js:208 ~ exports.facebookPostController= ~ text:", text)
     const { facebook: fb } = req.user
     try {
+        //if facebook user not post in any fb platforms
         if(!facebook || !fb.length) {
             console.log('fb is empty');
+            //if user not selected any fb pages , groups and instagram accounts it will be go to next middleware
             return  next();
         }
-        console.log('fb contains');
 
-        //set image url 
-        let imageUrl='';
-        // for(let i = 0; i < images.length; i++) {
-        //     imageUrl = imageUrl+'&url='+images[i].image
-        // }
-       
-   
-        //TODO: message collect
-        if(facebookPageIds){
+        if(Array.isArray(facebookPageIds)&&facebookPageIds.length){
+            console.log('fb pages');
+
+            //loop for multiple facebook accounts
             for(let i = 0; i < fb.length; i++) {
-            //facebook page post
-            const facebookPageList = await axios.get(`${process.env.FACEBOOK_API_URL}/me/accounts?fields=name,id,access_token&access_token=${fb[i].accessToken}`)
-            const facebookData = facebookPageList.data.data;
-            console.log("🚀 ~ file: facebookController.js:224 ~ exports.facebookPostController= ~ facebookData:", facebookData.length)
-            //check token is valid or not
-            if(!facebookData.length){
-                return res.status(400).json({
-                    status:'400',
-                    message: 'please login facebook  again'
-                })
-            }
+                //get user all pages data 
+                //for new token for page post
+                const facebookPageList = await axios.get(`${process.env.FACEBOOK_API_URL}/me/accounts?fields=name,id,access_token&access_token=${fb[i].accessToken}`)
+                const facebookData = facebookPageList.data.data;
+                
+                //check token is valid or not
+                if(!facebookData.length){
+                    return res.status(400).json({
+                        status:'400',
+                        message: 'please login facebook  again'
+                    })
+                }
 
-            //collect page token
-            const message = [];
-            for(let i=0; i < facebookData.length; i++){
-                if(facebookPageIds.includes(facebookData[i].id)){
-                    // console.log('text',text);
-                    // console.log('facebookData[i].id',facebookData[i].id);
-                    // console.log('facebookData[i].access_token',facebookData[i].access_token);
-                    let url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/feed?message=${text}&access_token=${facebookData[i].access_token}`
-                    if(images){
-                        url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/photos?url=${images[0]}&message=${text}&access_token=${facebookData[i].access_token}&published=true`
+                //post on user selected pages
+                const message = [];
+                for(let i=0; i < facebookData.length; i++){
+                    //check witch pages are selected for page (by page id machine)
+                    if(facebookPageIds.includes(facebookData[i].id)){
+                        let url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/feed?message=${text}&access_token=${facebookData[i].access_token}`
+                        if(images){
+                            url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/photos?url=${images[0]}&message=${text}&access_token=${facebookData[i].access_token}&published=true`
+                        }
+                        let response = await axios.post(url)
                     }
-                    let response = await axios.post(url)
-                    // console.log("🚀 ~ file: facebookController.js:244 ~ exports.facebookPostController= ~ res:", response.data)
-
-                    // message.push(res.data)
                 }
             }
-            console.log("🚀 ~ file: facebookController.js:234 ~ exports.facebookPostController= ~ message:", message)
-            
-
-        }
         }
 
         //TODO: message collect
-        if(facebookGroupsIds){
-
+        if(Array.isArray(facebookGroupsIds)&&facebookGroupsIds.length){
+            console.log('fb groups: ');
+            //loop for multiple facebook accounts
             for(let i = 0; i < fb.length; i++) {
+                //loop for post on selected facebook groups
                 for(let j = 0; j < facebookGroupsIds.length; j++) {
-
+                    //without any image post
                     let url =`${process.env.FACEBOOK_API_URL}/${facebookGroupsIds[j]}/feed?message=${text}&access_token=${fb[i].accessToken}`
                     if(images){
+                        //image and test with post
                         url = `${process.env.FACEBOOK_API_URL}/${facebookGroupsIds[j]}/photos?url=${images[0]}&message=${text}&access_token=${fb[i].accessToken}&published=true`
                     }
                     let response = await axios.post(url)
-                    console.log('Facebook Groups');
                 }
                 
             }
             
         }
-        if(instagramIds && images){
+        if(Array.isArray(instagramIds)&&instagramIds.length && images){
+            console.log('instagram');
+            //loop for multiple facebook accounts
             for(let i = 0; i < fb.length; i++) {
+                 //loop for post on selected instagram account connected to facebook page
                 for(let j = 0; j < instagramIds.length; j++) { 
-
-                    let url =`${process.env.FACEBOOK_API_URL}/${instagramIds[j]}/media?caption=post by api&image_url=${images[0]}&access_token=${fb[i].accessToken}`
+                    //single image  upload API 
+                    let url =`${process.env.FACEBOOK_API_URL}/${instagramIds[j]}/media?caption=${text}&image_url=${images[0]}&access_token=${fb[i].accessToken}`
                     let response = await axios.post(url)
-
+                    //publish content by this API requests
                     let media_publish_Url = `${process.env.FACEBOOK_API_URL}/${instagramIds[j]}/media_publish?creation_id=${response.data.id}&access_token=${fb[i].accessToken}`
 
                     await axios.post(media_publish_Url);
-                    console.log('instagram',response.data.id);
                 }
-                
             }
         }
-
         next();
-
-        
-        
     } catch (error) {
         next(error);
     }
