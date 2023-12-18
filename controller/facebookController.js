@@ -277,8 +277,20 @@ exports.facebookPostController = async (req, res,next) => {
             }
             
         }
-        if(instagramIds){
-            console.log("instagramIds");
+        if(instagramIds && images){
+            for(let i = 0; i < fb.length; i++) {
+                for(let j = 0; j < instagramIds.length; j++) { 
+
+                    let url =`${process.env.FACEBOOK_API_URL}/${instagramIds[j]}/media?caption=post by api&image_url=${images[0]}&access_token=${fb[i].accessToken}`
+                    let response = await axios.post(url)
+
+                    let media_publish_Url = `${process.env.FACEBOOK_API_URL}/${instagramIds[j]}/media_publish?creation_id=${response.data.id}&access_token=${fb[i].accessToken}`
+
+                    await axios.post(media_publish_Url);
+                    console.log('instagram',response.data.id);
+                }
+                
+            }
         }
 
         next();
