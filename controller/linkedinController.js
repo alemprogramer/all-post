@@ -1,5 +1,6 @@
 const { AuthClient,RestliClient } = require('linkedin-api-client');
-var Cookies = require('cookies')
+var Cookies = require('cookies');
+const axios = require('axios');
 const User = require('../model/User');
 const {
   createRefreshToken,
@@ -7,6 +8,7 @@ const {
 } = require("../utils/tokenCreate");
 
 const {setToken, cookieSet} = require('../utils/cookieSet');
+const linkedinFileUploader = require('../utils/linkedinFileUploader');
 
 
 const params = {
@@ -132,63 +134,44 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
     
 }
 
+
 exports.postInLinkedInController = async(req, res, next) => {
   const {linkedin} = req.user;
-  const {text,media,linkedin:ldIn} = req.body;
-  console.log("🚀 ~ file: linkedinController.js:138 ~ exports.postInLinkedInController=async ~ media:", media)
+  const {text,linkedin:ldIn} = req.body;
   try {
     if(!ldIn){
       console.log('inkedIn is empty');
       return  next();
     }
-    let payload = {
-      resourcePath: '/ugcPosts',
-      entity: {
-        author: `urn:li:person:${linkedin.userId}`,
-        lifecycleState: 'PUBLISHED',
-        specificContent: {
-          'com.linkedin.ugc.ShareContent': {
-            shareCommentary: {
-              text  // text post 
-            },
-            shareMediaCategory: 'NONE'
+
+    if(req.files.length){ // image or video post functionality
+      console.log('image');
+      await linkedinFileUploader(linkedin.accessToken,linkedin.userId,text,req.files[0].buffer);
+    }else{ // just text post functionality
+      console.log('else');
+      let payload = {
+        resourcePath: '/ugcPosts',
+        entity: {
+          author: `urn:li:person:${linkedin.userId}`,
+          lifecycleState: 'PUBLISHED',
+          specificContent: {
+            'com.linkedin.ugc.ShareContent': {
+              shareCommentary: {
+                text  // text post 
+              },
+              shareMediaCategory: 'NONE'
+            }
+          },
+          visibility: {
+            'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
           }
         },
-        visibility: {
-          'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
-        }
-      },
-      accessToken:linkedin.accessToken
+        accessToken:linkedin.accessToken
+      }
+      const ugcPostsCreateResponse = await restClient.create(payload);
     }
-    // if(media && text){
-    //   payload = {
-    //     resourcePath: '/ugcPosts',
-    //     entity: {
-    //       author: `urn:li:person:${linkedin.userId}`,
-    //       lifecycleState: 'PUBLISHED',
-    //       specificContent: {
-    //         'com.linkedin.ugc.ShareContent': {
-    //           shareCommentary: {
-    //             text  // text post 
-    //           },
-    //           shareMediaCategory: 'IMAGE',
-    //           media: [
-    //             {
-    //               originalUrl: media[0],
-    //             }
-    //           ]
-    //         }
-    //       },
-    //       visibility: {
-    //         'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
-    //       }
-    //     },
-    //     accessToken:linkedin.accessToken
-    //   }
-    // }
-    const ugcPostsCreateResponse = await restClient.create(payload);
-  console.log("🚀 ~ file: linkedinController.js:62 ~ exports.postInLinkedInController=async ~ ugcPostsCreateResponse:", ugcPostsCreateResponse.data)
-  res.json(ugcPostsCreateResponse.data)
+    
+    next();
   } catch (error) {
     next(error)
   }
