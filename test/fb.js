@@ -54,15 +54,6 @@ async function initiateUpload(uploadSessionId, fileBuffer) {
         });
         const fileHandle = initiateUploadResponse.data.h;
         console.log('print',initiateUploadResponse.data);
-
-        
-            
-                const getUrl = `https://graph.facebook.com/v18.0/${initiateUploadResponse.data.h}?access_token=${accessToken}`;
-        
-                const response = await axios.get(getUrl);
-                console.log("🚀 ~ file: fb.js:66 ~ initiateUpload ~ response:", response.data)
-        
-
         return fileHandle;
     } catch (error) {
         console.log("initiateUpload",error.message);
