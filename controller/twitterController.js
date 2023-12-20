@@ -15,14 +15,15 @@ const {
 const axios = require('axios');
 
 const User = require('../model/User');
-const Facebook = require('../model/Facebook');
+const twitterFileUploader = require('../utils/twitterFileUploader');
 
 //twitter login url generator api 
 exports.twitterLoginController = async (req, res, next) => {
   const { url, codeVerifier, state } = client.generateOAuth2AuthLink(CALLBACK_URL, { scope: ['tweet.read','tweet.write', 'users.read', 'offline.access'] });
   req.session.codeVerifier = codeVerifier;
   req.session.sessionState = state;
-  req.session.save();
+  // req.session.save();
+  await req.session.save();
 
   res.redirect(url);
 }
@@ -33,6 +34,7 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
 
   // Get the saved codeVerifier from session
   const codeVerifier = req.session.codeVerifier;
+  console.log("🚀 ~ file: twitterController.js:36 ~ exports.twitterLoginCallbackController= ~ codeVerifier:", codeVerifier)
   const sessionState = req.session.sessionState;
   try {
     // if (!codeVerifier || !state || !sessionState || !code) {
@@ -118,27 +120,28 @@ exports.twitterTweetPostController = async (req,res,next) => {
   try {
     const {twitter} = await User.findById(req.id);
     const client2 = new TwitterApi(twitter.twitterAccessToken);
-    let data;
-    if(text && duration_minutes && options){
+    
+    
+    if(text && duration_minutes && options){  //this condition for text and  poll posting
       data =  await client2.v2.tweet(text,{
         poll: { 
-          duration_minutes,
+          duration_minutes: Number.parseInt(duration_minutes),
           options//['Absolutely', 'For sure!'] 
         },
-      }); 
-    }else{
-      data =  await client2.v2.tweet(text);
+      });
+      
+    }else if(req.files.length){              //this condition is for text and  media posting
+      console.log('file');
+      const  mediaId = await twitterFileUploader(req.files[0].buffer)
+      await client2.v2.tweet({text,media: { media_ids: [mediaId] }});
+      
+    }else{                                  //this condition for just test posting 
+      await client2.v2.tweet(text);
     }
-
-    
-  //TODO:  adding image and poll
-
-
-  res.json(data);
+    next()
   } catch (error) {
-    next(error);
+     next(error);
   }
-  
 };
 
 
@@ -158,43 +161,44 @@ res.json({
 }
 
 exports.twitterUserDataController = async (req,res,next) => {
-  // const endpoint = `https://api.twitter.com/2/users/by/username/${'LmHossain26919'}?user.fields=profile_image_url`;
+  const endpoint = `https://api.twitter.com/2/users/by/username/${'LmHossain26919'}?user.fields=profile_image_url`;
 
-  // try {
-  //   const response = await axios.get(endpoint, {
-  //     headers: {
-  //       Authorization: `Bearer ${'UHc0MkFSbFdCZko3MVRhVC1jYm0wVW5ib0VNaFhXU245OUtEYXB5ZkFTQUNvOjE2OTgxNTY5OTU5NTM6MToxOmF0OjE'}`,
-  //     },
-  //   });
-  //   if (response.data?.data?.profile_image_url) {
-  //     return res.json(response.data.data.profile_image_url);
-  //   } else {
-  //     throw new Error("Profile image URL not found");
-  //   }
-  // } catch (error) {
-  //   console.error(error);
-  //   next(error);
-  // }
+  try {
+    const response = await axios.get(endpoint, {
+      headers: {
+        Authorization: `Bearer ${'ZGFyTVJxc2ctOF9xRDJubHlOMnIzZFQ5cmhiU2pzYjB0US1hY0Y4M0ViWDlFOjE3MDMwNjQwNzE5MTA6MToxOmF0OjE'}`,
+      },
+    });
+    console.log("🚀 ~ file: twitterController.js:171 ~ exports.twitterUserDataController= ~ response:", response.data)
+    if (response.data?.data?.profile_image_url) {
+      return res.json(response.data.data.profile_image_url);
+    } else {
+      throw new Error("Profile image URL not found");
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 
 
-  const bearerToken = 'enQ4WHVUdE5DQ21SUk13SUNneWJQTDdtYm13N1NSOWRlcldiTGNlOERMY09xOjE2OTgxNTkwODUyMzE6MTowOmF0OjE'; // Replace with your actual Bearer Token
-const userId = '1713443930044551168'; // Replace with the user's ID or username
+//   const bearerToken = 'ZGFyTVJxc2ctOF9xRDJubHlOMnIzZFQ5cmhiU2pzYjB0US1hY0Y4M0ViWDlFOjE3MDMwNjQwNzE5MTA6MToxOmF0OjE'; // Replace with your actual Bearer Token
+// const userId = '1713443930044551168'; // Replace with the user's ID or username
 
-const url = `https://api.twitter.com/2/users/${userId}`;
-const headers = {
-  Authorization: `Bearer ${bearerToken}`,
-};
+// const url = `https://api.twitter.com/2/users/${userId}`;
+// const headers = {
+//   Authorization: `Bearer ${bearerToken}`,
+// };
 
-axios.get(url, { headers })
-  .then((response) => {
-    const userData = response.data.data;
-    console.log('User Data:', userData);
-  })
-  .catch((error) => {
-    console.error('Error:', error);
-  });
+// axios.get(url, { headers })
+//   .then((response) => {
+//     const userData = response.data.data;
+//     console.log('User Data:', userData);
+//   })
+//   .catch((error) => {
+//     console.error('Error:', error);
+//   });
 
-  res.send('ok')
+  // res.send('ok')
 }
 
 
