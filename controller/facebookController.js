@@ -207,16 +207,15 @@ exports.facebookGroupDataCollectController = async (req, res, next) => {
 exports.facebookPostController = async (req, res,next) => {
     //facebook will be true if any page or group id in the array
     const {facebook,facebookPageIds,facebookGroupsIds,instagramIds,text,media} =req.body;
-    console.log("🚀 ~ file: facebookController.js:208 ~ exports.facebookPostController= ~ text:", text)
     const { facebook: fb } = req.user
+    
     try {
         //if facebook user not post in any fb platforms
-        if(!facebook || !fb.length) {
+        if((facebook != 'true') || !fb.length) {
             console.log('fb is empty');
             //if user not selected any fb pages , groups and instagram accounts it will be go to next middleware
             return  next();
         }
-
         if(Array.isArray(facebookPageIds)&&facebookPageIds.length){
             console.log('fb pages');
 
@@ -290,3 +289,4 @@ exports.facebookPostController = async (req, res,next) => {
         next(error);
     }
 }
+

@@ -116,12 +116,14 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
 
 // twitter tweet post controller 
 exports.twitterTweetPostController = async (req,res,next) => {
+  const {twitter} = req.user;
+  console.log("🚀 ~ file: twitterController.js:120 ~ exports.twitterTweetPostController= ~ twitter:", twitter)
   const {text,duration_minutes,options,twitter:x} = req.body;
-  let checkTwitterData = x.toLowerCase() != 'true';
   
   try {
-    const {twitter} = await User.findById(req.id);
-    if(!checkTwitterData || !twitter )next();
+    // const {twitter} = await User.findById(req.id);
+    if(x != 'true' || !twitter.id ) return next();
+    
     const client2 = new TwitterApi(twitter.twitterAccessToken);
     
     

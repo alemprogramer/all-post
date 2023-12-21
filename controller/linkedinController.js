@@ -139,7 +139,7 @@ exports.postInLinkedInController = async(req, res, next) => {
   const {linkedin} = req.user;
   const {text,linkedin:ldIn} = req.body;
   try {
-    if(!ldIn){
+    if(ldIn != 'true' || !linkedin.userId){
       console.log('inkedIn is empty');
       return  next();
     }
