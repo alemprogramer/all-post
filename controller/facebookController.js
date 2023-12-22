@@ -204,10 +204,15 @@ exports.facebookGroupDataCollectController = async (req, res, next) => {
 }
 
 //TODO: message collect
+const {fileUploadOnFacebookPAge} = require('../utils/facebookFileUpload');
 exports.facebookPostController = async (req, res,next) => {
     //facebook will be true if any page or group id in the array
-    const {facebook,facebookPageIds,facebookGroupsIds,instagramIds,text,media} =req.body;
+    let {facebook,facebookPageIds,facebookGroupsIds,instagramIds,text} =req.body;
     const { facebook: fb } = req.user
+    if(!(Array.isArray(facebookPageIds)&&facebookPageIds.length > 0)){
+        facebookPageIds = [facebookPageIds]
+    }
+    console.log(facebookPageIds)
     
     try {
         //if facebook user not post in any fb platforms
@@ -240,10 +245,11 @@ exports.facebookPostController = async (req, res,next) => {
                     //check witch pages are selected for page (by page id machine)
                     if(facebookPageIds.includes(facebookData[i].id)){
                         let url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/feed?message=${text}&access_token=${facebookData[i].access_token}`
-                        if(media){
-                            url = `${process.env.FACEBOOK_API_URL}/${facebookData[i].id}/photos?url=${media[0]}&message=${text}&access_token=${facebookData[i].access_token}&published=true`
+                        if(req.files.length){
+                          await  fileUploadOnFacebookPAge(facebookData[i].id,facebookData[i].access_token,req)
+                        }else{
+                            let response = await axios.post(url)
                         }
-                        let response = await axios.post(url)
                     }
                 }
             }
