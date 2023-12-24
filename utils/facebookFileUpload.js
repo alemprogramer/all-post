@@ -22,7 +22,6 @@ exports.fileUploadOnFacebookPAge = (pageId,accessToken,req)=>{
             });
 
             // Log the response from Facebook
-            console.log(response.data);
             resolve({
                 message: "post created successfully",
                 data: response.data
@@ -31,4 +30,28 @@ exports.fileUploadOnFacebookPAge = (pageId,accessToken,req)=>{
             reject(error)
         }
     })
+}
+
+exports.instagramImageUrlForPost = (postId,accessToken)=>{
+    return new Promise(async (resolve, reject)=>{
+        console.log("🚀 ~ file: facebookFileUpload.js:57 ~ return new Promise ~ postId:", postId)
+        console.log("🚀 ~ file: facebookFileUpload.js:57 ~ return new Promise ~ accessToken:", accessToken)
+        try {
+            const response = await axios.get(
+              `https://graph.facebook.com/v13.0/${postId}`,
+              {
+                params: {
+                  access_token: accessToken,
+                  fields: 'full_picture', // Add more fields as needed
+                },
+              }
+            );
+        
+            const postDetails = response.data.full_picture;
+            resolve(postDetails)
+          } catch (error) {
+            reject(error.message);
+          }
+    })
+        
 }
