@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha './test/**/*.spec.js'",
     "start": "node app.js"
   },
   "keywords": [],
@@ -34,5 +34,10 @@
     "passport-linkedin-oauth2": "^2.0.0",
     "passport-twitter": "^1.0.4",
     "twitter-api-v2": "^1.15.2"
+  },
+  "devDependencies": {
+    "chai": "^4.3.10",
+    "chai-http": "^4.4.0",
+    "mocha": "^10.2.0"
   }
 }
