@@ -8,6 +8,7 @@ const facebookSchema = new Schema({
   },
   fbEmail:String,
   accessToken:String,
+  accessTokenExpire:Number,
   name:String,
   profilePic:String,
   pages:[{
