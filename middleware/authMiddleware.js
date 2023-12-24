@@ -24,9 +24,12 @@ module.exports = async (req, res, next) => {
       return next();
     }
 
+    const token = req.header("Authorization");
+    let user ;
+
     //for customer key detect 
-    if(req.query.apikey && !req.header("Authorization") && forApiKeyUse.includes(req.path.toLowerCase())){
-      const user = await User.findById(req.query.apikey).populate('facebook').select('-password');
+    if(req.query.apikey && !token && forApiKeyUse.includes(req.path.toLowerCase())){
+      user = await User.findById(req.query.apikey).populate('facebook').select('-password');
       
         if (!user){
           return res.status(400).json({
@@ -34,29 +37,21 @@ module.exports = async (req, res, next) => {
             msg: "Please give  your valid key",
           });
         } 
-
-        req.user = user;
-        req.id = user._id;
-        return next();
-      
     }else{
       //for all authenticate user
-      const token = req.header("Authorization");
       console.log('token:',token.length || "unauthorized");
       if (!token) return res.status(401).json({
         status: 401,
         msg: "Invalid Authentication.",
       });
       const data = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-      let user = await User.findById(data.id).populate('facebook');
-
-      req.user = user;
-      req.id = data.id;
-
-      next();
+      user = await User.findById(data.id).populate('facebook');
     }
 
-    
+    req.user = user;
+    req.id = user._id;
+    return next();
+
   } catch (error) {
     if(req.query.apikey){
       return res.status(400).json({
@@ -64,7 +59,7 @@ module.exports = async (req, res, next) => {
         msg: "Please give  your valid key",
       });
     }
-    
+
     return res.status(401).json({
       status: 401,
       msg: "Invalid Authentication.",
