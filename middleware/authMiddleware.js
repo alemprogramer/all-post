@@ -56,7 +56,7 @@ module.exports = async (req, res, next) => {
     if(req.query.apikey){
       return res.status(400).json({
         status: 400,
-        msg: "Please give  your valid key",
+        msg: "Please give your valid key.",
       });
     }
 
