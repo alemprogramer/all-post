@@ -14,30 +14,61 @@ module.exports = async (req, res, next) => {
     "/api/v1/twitter/login",
     "/api/v1/twitter/callback",
   ]; // Add routes you want to exclude here
-try {
-  if (excludedRoutes.includes(req.path.toLowerCase())) {
-    // Skip the global middleware for the excluded routes
-    return next();
+  const forApiKeyUse = [
+    `/api/v1/post/all`,
+    `/api/v1/post/socials`
+  ]
+  try {
+    if (excludedRoutes.includes(req.path.toLowerCase())) {
+      // Skip the global middleware for the excluded routes
+      return next();
+    }
+
+    //for customer key detect 
+    if(req.query.apikey && !req.header("Authorization") && forApiKeyUse.includes(req.path.toLowerCase())){
+      const user = await User.findById(req.query.apikey).populate('facebook').select('-password');
+      
+        if (!user){
+          return res.status(400).json({
+            status: 400,
+            msg: "Please give  your valid key",
+          });
+        } 
+
+        req.user = user;
+        req.id = user._id;
+        return next();
+      
+    }else{
+      //for all authenticate user
+      const token = req.header("Authorization");
+      console.log('token:',token.length || "unauthorized");
+      if (!token) return res.status(401).json({
+        status: 401,
+        msg: "Invalid Authentication.",
+      });
+      const data = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      let user = await User.findById(data.id).populate('facebook');
+
+      req.user = user;
+      req.id = data.id;
+
+      next();
+    }
+
+    
+  } catch (error) {
+    if(req.query.apikey){
+      return res.status(400).json({
+        status: 400,
+        msg: "Please give  your valid key",
+      });
+    }
+    
+    return res.status(401).json({
+      status: 401,
+      msg: "Invalid Authentication.",
+    })
   }
-
-  const token = req.header("Authorization");
-  console.log('token:',token || "unauthorized");
-  if (!token) return res.status(400).json({
-    status: 400,
-    msg: "Invalid Authentication.",
-  });
-  const data = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-  let user = await User.findById(data.id).populate('facebook');
-
-  req.user = user;
-  req.id = data.id;
-
-  next();
-} catch (error) {
-  return res.status(400).json({
-    status: 400,
-    msg: "Invalid Authentication.",
-  })
-}
   
 };
