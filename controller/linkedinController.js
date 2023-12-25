@@ -57,7 +57,7 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
           'linkedin.name': user.data.name,
           'linkedin.proPic': user.data.picture,
           'linkedin.accessToken': token.access_token,
-          'linkedin.expiresInAccessToken': token.expires_in,
+          'linkedin.expiresInAccessToken':Date.now() +  token.expires_in,
           'linkedin.refreshToken': token.refresh_token,
           'linkedin.expiresInRefreshToken': token.refresh_token_expires_in,
           'linkedin.userId': user.data.sub
@@ -83,7 +83,7 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
           message: 'user login successfully',
           refresh_token, 
           access_token,
-          linked_AccessToken:token.access_token,
+          linked_AccessToken:Date.now() + token.access_token,
           linked_refreshToken:token.refresh_token
         })
 
@@ -98,7 +98,7 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
           name:user.data.name,
           proPic:user.data.picture,
           accessToken:token.access_token,
-          expiresInAccessToken:token.expires_in,
+          expiresInAccessToken:Date.now() + token.expires_in,
           refreshToken:token.refresh_token,
           expiresInRefreshToken:token.refresh_token_expires_in,
           userId:user.data.sub
