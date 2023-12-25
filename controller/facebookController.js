@@ -12,8 +12,6 @@ const axios = require('axios');
 const Facebook = require('../model/Facebook');
 const {fileUploadOnFacebookPAge,instagramImageUrlForPost} = require('../utils/facebookFileUpload');
 
-
-
 const sdk = new SuperfaceClient();
 
 exports.fbLongLiveAccessTokenController = async (req,res,next)=>{
@@ -92,18 +90,16 @@ exports.fbLoginCallBackController = async function (req, res, next) {
                 
         }
 
-
-        // //group list formatter
-        // // TODO: api call and save data
-
-
+        const currentDate = new Date();
+        const ExpireDate = new Date(currentDate.getTime() + (1000 * 60 * 60 * 24 * 90)); //60 days
         const isUser = await Facebook.findOne({id})
         let userIdForToken = '' ;
         if (isUser) {
             const {userId,_id} = isUser ;
             const update = {
                 $set: {
-                    pages: listOfPage
+                    pages: listOfPage,
+                    accessTokenExpire: ExpireDate,
                 }
             };
             await Facebook.findOneAndUpdate({ _id:_id },update);
@@ -118,7 +114,8 @@ exports.fbLoginCallBackController = async function (req, res, next) {
                 accessToken: accessToken,
                 profilePic: photos.value,
                 pages: listOfPage || [],
-                groups:[]
+                groups:[],
+                accessTokenExpire: ExpireDate
             })
 
             const fbUser = await facebook.save();
