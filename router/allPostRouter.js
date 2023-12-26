@@ -49,6 +49,7 @@ const router = require('express').Router();
 const {facebookPostController} = require('../controller/facebookController');
 const {postInLinkedInController} = require('../controller/linkedinController');
 const {twitterTweetPostController} = require('../controller/twitterController');
+const { allSocialStatusController } = require('../controller/socialController');
 
 const {postValidator} = require('../validator/postValidator');
 
@@ -62,4 +63,5 @@ router.post('/all',uploader.array('photos', 100),postValidator,facebookPostContr
     })
 })
 
+router.get('/socials',allSocialStatusController)
 module.exports = router
