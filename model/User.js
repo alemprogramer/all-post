@@ -19,6 +19,8 @@ const userSchema = new Schema(
       twitterAccessToken: String,
       id:String,
       twitterRefreshToken: String,
+      accessTokenExpire: Number,
+      twitterProfile: String,
     },
     
     
