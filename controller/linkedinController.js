@@ -80,14 +80,15 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
         cookies.set('linked_AccessToken',token.access_token,res);
         cookies.set('linked_refreshToken',token.refresh_token,res);
 
-        res.status(200).json({
-          success:200,
-          message: 'user login successfully',
-          refresh_token, 
-          access_token,
-          linked_AccessToken: token.access_token,
-          linked_refreshToken:token.refresh_token
-        })
+        // res.status(200).json({
+        //   success:200,
+        //   message: 'user login successfully',
+        //   refresh_token, 
+        //   access_token,
+        //   linked_AccessToken: token.access_token,
+        //   linked_refreshToken:token.refresh_token
+        // })
+        res.redirect("http://localhost:3001/mainpage")
 
     }else{
       //user signup 
