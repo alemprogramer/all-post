@@ -51,7 +51,8 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
       const {id,name} = userObject;
       const isUser = await User.findOne({'twitter.id':id});
 
-      
+      const currentDate = new Date();
+      const ExpireDate = new Date(currentDate.getTime() + (1000 * 60 * 60 * 2)); //2 hours
       let userId;
       if(isUser){
         const update = {
@@ -60,7 +61,7 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
             'twitter.twitterAccessToken': accessToken,
             'twitter.twitterRefreshToken': refreshToken,
             'twitter.id': id,
-            'twitter.accessTokenExpire': Date.now() + (expiresIn*1000)
+            'twitter.accessTokenExpire': ExpireDate
           }
         };
     
@@ -75,7 +76,7 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
             name,
             twitterAccessToken:accessToken,
             twitterRefreshToken:refreshToken,
-            accessTokenExpire:Date.now() + (expiresIn*1000)
+            accessTokenExpire:ExpireDate
           },
           linkedin:{},
           facebook:[]
