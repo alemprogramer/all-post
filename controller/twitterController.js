@@ -45,9 +45,7 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
   // }
 
   const { client: loggedClient, accessToken, refreshToken, expiresIn } = await client.loginWithOAuth2({ code, codeVerifier, redirectUri: CALLBACK_URL })
-  
-    
-   
+     
       // Example request
       const { data: userObject } = await loggedClient.v2.me();
       const {id,name} = userObject;
@@ -56,13 +54,13 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
       
       let userId;
       if(isUser){
-        console.log(isUser);
         const update = {
           $set: {
             'twitter.name': name,
             'twitter.twitterAccessToken': accessToken,
             'twitter.twitterRefreshToken': refreshToken,
-            'twitter.id': id
+            'twitter.id': id,
+            'twitter.accessTokenExpire': Date.now() + (expiresIn*1000)
           }
         };
     
@@ -76,7 +74,8 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
             id,
             name,
             twitterAccessToken:accessToken,
-            twitterRefreshToken:refreshToken
+            twitterRefreshToken:refreshToken,
+            accessTokenExpire:Date.now() + (expiresIn*1000)
           },
           linkedin:{},
           facebook:[]
@@ -117,7 +116,6 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
 // twitter tweet post controller 
 exports.twitterTweetPostController = async (req,res,next) => {
   const {twitter} = req.user;
-  console.log("🚀 ~ file: twitterController.js:120 ~ exports.twitterTweetPostController= ~ twitter:", twitter)
   const {text,duration_minutes,options,twitter:x} = req.body;
   
   try {
