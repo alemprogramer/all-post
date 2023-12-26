@@ -50,6 +50,8 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
       ]
     });
 
+    const currentDate = new Date();
+        const ExpireDate = new Date(currentDate.getTime() + (1000 * 60 * 60 * 24 * 90));
     if(userInfo){
       const update = {
         $set: {
@@ -57,7 +59,7 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
           'linkedin.name': user.data.name,
           'linkedin.proPic': user.data.picture,
           'linkedin.accessToken': token.access_token,
-          'linkedin.expiresInAccessToken':Date.now() +  token.expires_in,
+          'linkedin.expiresInAccessToken':ExpireDate,
           'linkedin.refreshToken': token.refresh_token,
           'linkedin.expiresInRefreshToken': token.refresh_token_expires_in,
           'linkedin.userId': user.data.sub
@@ -83,7 +85,7 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
           message: 'user login successfully',
           refresh_token, 
           access_token,
-          linked_AccessToken:Date.now() + token.access_token,
+          linked_AccessToken: token.access_token,
           linked_refreshToken:token.refresh_token
         })
 
@@ -98,7 +100,7 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
           name:user.data.name,
           proPic:user.data.picture,
           accessToken:token.access_token,
-          expiresInAccessToken:Date.now() + token.expires_in,
+          expiresInAccessToken:ExpireDate,
           refreshToken:token.refresh_token,
           expiresInRefreshToken:token.refresh_token_expires_in,
           userId:user.data.sub
