@@ -22,7 +22,7 @@ const facebookSchema = new Schema({
         instagramName:String,
         profilePic:String,
         id:String,
-        accessToken:String,
+        // accessToken:String,
       }
     }],
   groups:[{
