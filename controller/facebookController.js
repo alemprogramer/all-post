@@ -137,11 +137,11 @@ exports.fbLoginCallBackController = async function (req, res, next) {
         const access_token = createAccessToken({id: userIdForToken}, process.env.ACCESS_TOKEN_SECRET,'50m');
 
         //our own system cookies
-        cookies.set('access_token', access_token,{ expires: new Date(Date.now() + 1000 * 60 *60 *24*30) }) //30days
-        cookies.set('refresh_token', refresh_token,{ expires:  new Date(Date.now() + 1000 * 60 * 50)  }) //50 min
+        cookies.set('access_token', access_token,{ httpOnly:false, expires: new Date(Date.now() + 1000 * 60 *60 *24*30) }) //30days
+        cookies.set('refresh_token', refresh_token,{ httpOnly:false, expires:  new Date(Date.now() + 1000 * 60 * 50)  }) //50 min
         
         //social media cookies
-        cookies.set('facebook_AccessToken',accessToken,{ expires:  new Date(Date.now() + 1000 * 60 *60 *24*90)  }); //3 months
+        cookies.set('facebook_AccessToken',accessToken,{ httpOnly:true, expires:  new Date(Date.now() + 1000 * 60 *60 *24*90)  }); //3 months
 
         // res.status(201).json({
         //     status:200,
