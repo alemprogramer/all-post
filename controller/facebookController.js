@@ -143,13 +143,16 @@ exports.fbLoginCallBackController = async function (req, res, next) {
         //social media cookies
         cookies.set('facebook_AccessToken',accessToken,{ expires:  new Date(Date.now() + 1000 * 60 *60 *24*90)  }); //3 months
 
-        res.status(201).json({
-            status:200,
-            message: 'User created successfully by facebook',
-            refresh_token, 
-            access_token,
-            facebook_AccessToken:accessToken,
-        })
+        // res.status(201).json({
+        //     status:200,
+        //     message: 'User created successfully by facebook',
+        //     refresh_token, 
+        //     access_token,
+        //     facebook_AccessToken:accessToken,
+        // })
+        res.redirect(process.env.LOGIN_REDIRECT_URL)
+        res.end();
+        
     } catch (err) {
       next(err);
     }

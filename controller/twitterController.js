@@ -17,15 +17,21 @@ const axios = require('axios');
 const User = require('../model/User');
 const twitterFileUploader = require('../utils/twitterFileUploader');
 
+const {setToken, cookieSet} = require('../utils/cookieSet');
+
 //twitter login url generator api 
 exports.twitterLoginController = async (req, res, next) => {
   const { url, codeVerifier, state } = client.generateOAuth2AuthLink(CALLBACK_URL, { scope: ['tweet.read','tweet.write', 'users.read', 'offline.access'] });
+  
+  console.log("🚀 ~ file: twitterController.js:23 ~ exports.twitterLoginController= ~ url:", url)
   req.session.codeVerifier = codeVerifier;
   req.session.sessionState = state;
   // req.session.save();
   await req.session.save();
 
-  res.redirect(url);
+  let newUrl = 'https://twitter.com/i/oauth2/authorize?response_type=code&client_id=cnRtUXlndWdES0RlQmxaWUQtaC06MTpjaQ&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fapi%2Fv1%2Ftwitter%2Fcallback&state=46x7uvtlj1YmKGG43PVNm9DMN4llzEY8&code_challenge=6kXjpjJYNKjCT7gH47C3plx9Le7Xl6QYcCAITlXIyDY&code_challenge_method=s256&scope=tweet.read%20tweet.write%20users.read%20offline.access'
+  console.log("🚀 ~ file: twitterController.js:23 ~ exports.twitterLoginController= ~ codeVerifier:", req.session.codeVerifier)
+  res.redirect(newUrl);
 }
 
 exports.twitterLoginCallbackController = async (req,res,next) => {
@@ -33,8 +39,8 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
   const cookies = new Cookies(req, res);
 
   // Get the saved codeVerifier from session
-  const codeVerifier = req.session.codeVerifier;
-  console.log("🚀 ~ file: twitterController.js:36 ~ exports.twitterLoginCallbackController= ~ codeVerifier:", codeVerifier)
+  const codeVerifier = req.session.codeVerifier || '8AThWUXXpo_Bm1ym7JlyUpKkyQftXWCRZFGx8_wSpYwkjJHi4L1zE2L_VIy5E_VIlEbGpRq90zpCsjfNFkyHA~NPqkSKB~KMtg9UpyCw3_nFzSk4kue5hb7mUD508aSO';
+  // console.log("🚀 ~ file: twitterController.js:36 ~ exports.twitterLoginCallbackController= ~ codeVerifier:", codeVerifier)
   const sessionState = req.session.sessionState;
   try {
     // if (!codeVerifier || !state || !sessionState || !code) {
@@ -88,23 +94,30 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
   const refresh_token = createRefreshToken({id: userId}, process.env.REFRESH_TOKEN_SECRET,'30d')
   const access_token = createAccessToken({id: userId}, process.env.ACCESS_TOKEN_SECRET,'50m');
 
+
+
   //our own system cookies
-  cookies.set('access_token', access_token,{ expires: new Date(Date.now() + 1000 * 60 *60 *24*30) }) //30days
-  cookies.set('refresh_token', refresh_token,{ expires:  new Date(Date.now() + 1000 * 60 * 50)  }) //50 min
+  setToken(refresh_token, access_token,res);
+  // cookies.set('access_token', access_token,{ expires: new Date(Date.now() + 1000 * 60 *60 *24*30) }) //30days
+  // cookies.set('refresh_token', refresh_token,{ expires:  new Date(Date.now() + 1000 * 60 * 50)  }) //50 min
+
   
-  //social media cookies
-  cookies.set('twitter_AccessToken',accessToken,{ expires:  new Date(Date.now() + 1000 * 60 *60 *24*60)  }); //2 months
+  // //social media cookies
+  // cookies.set('twitter_AccessToken',accessToken,{ expires:  new Date(Date.now() + 1000 * 60 *60 *24*60)  }); //2 months
 
-  cookies.set('twitter_refreshToken',refreshToken,{ expires:  new Date(Date.now() + 1000 * 60 *60 *24*60)  });
+  // cookies.set('twitter_refreshToken',refreshToken,{ expires:  new Date(Date.now() + 1000 * 60 *60 *24*60)  });
 
-  res.status(201).json({
-      status:200,
-      message: 'User created successfully',
-      refresh_token, 
-      access_token,
-      twitter_AccessToken:accessToken,
-      twitter_refreshToken:refreshToken
-  })
+  // res.status(201).json({
+  //     status:200,
+  //     message: 'User created successfully',
+  //     refresh_token, 
+  //     access_token,
+  //     twitter_AccessToken:accessToken,
+  //     twitter_refreshToken:refreshToken
+  // })
+  res.redirect(process.env.LOGIN_REDIRECT_URL)
+
+  
 
   } catch (error) {
     next(error);

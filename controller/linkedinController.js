@@ -88,7 +88,7 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
         //   linked_AccessToken: token.access_token,
         //   linked_refreshToken:token.refresh_token
         // })
-        res.redirect("http://localhost:3001/mainpage")
+        res.redirect(process.env.LOGIN_REDIRECT_URL)
 
     }else{
       //user signup 
@@ -119,14 +119,15 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
     //social media cookies
     cookieSet('linked_AccessToken',token.access_token,res);
     cookieSet('linked_refreshToken',token.refresh_token,res);
-    res.status(200).json({
-      success:200,
-      message: 'user signed up successfully',
-      refresh_token, 
-      access_token,
-      linked_AccessToken:token.access_token,
-      linked_refreshToken:token.refresh_token
-    })
+    // res.status(200).json({
+    //   success:200,
+    //   message: 'user signed up successfully',
+    //   refresh_token, 
+    //   access_token,
+    //   linked_AccessToken:token.access_token,
+    //   linked_refreshToken:token.refresh_token
+    // })
+    res.redirect(process.env.LOGIN_REDIRECT_URL)
   }
      
    
