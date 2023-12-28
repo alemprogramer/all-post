@@ -71,24 +71,11 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
        const refresh_token = createRefreshToken({id: userInfo._id}, process.env.REFRESH_TOKEN_SECRET,'30d')
        const access_token = createAccessToken({id: userInfo._id}, process.env.ACCESS_TOKEN_SECRET,'50m');
 
-        //our own system cookies
-        
-        cookies.set('access_token', access_token,{httpOnly:false})
-        cookies.set('refresh_token', refresh_token,{httpOnly:false})
-        
-        //social media cookies
-        cookies.set('linked_AccessToken',token.access_token,res,{httpOnly:true});
-        cookies.set('linked_refreshToken',token.refresh_token,res,{httpOnly:true});
+      //our own system cookies
+      cookies.set('access_token', access_token,{ httpOnly:false, expires: new Date(Date.now() + 1000 * 60 *50) }) //50min
+      cookies.set('refresh_token', refresh_token,{ httpOnly:false, expires:  new Date(Date.now() + 1000 * 60 *60 *24*30)  }) //30day
 
-        // res.status(200).json({
-        //   success:200,
-        //   message: 'user login successfully',
-        //   refresh_token, 
-        //   access_token,
-        //   linked_AccessToken: token.access_token,
-        //   linked_refreshToken:token.refresh_token
-        // })
-        res.redirect(process.env.LOGIN_REDIRECT_URL)
+      res.redirect(process.env.LOGIN_REDIRECT_URL)
 
     }else{
       //user signup 
@@ -114,19 +101,10 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
     const access_token = createAccessToken({id: newUser.id}, process.env.ACCESS_TOKEN_SECRET,'50m');
 
     //our own system cookies
-    setToken(refresh_token, access_token,res);
+    //our own system cookies
+    cookies.set('access_token', access_token,{ httpOnly:false, expires: new Date(Date.now() + 1000 * 60 *50) }) //50min
+    cookies.set('refresh_token', refresh_token,{ httpOnly:false, expires:  new Date(Date.now() + 1000 * 60 *60 *24*30)  }) //30day
     
-    //social media cookies
-    cookieSet('linked_AccessToken',token.access_token,res);
-    cookieSet('linked_refreshToken',token.refresh_token,res);
-    // res.status(200).json({
-    //   success:200,
-    //   message: 'user signed up successfully',
-    //   refresh_token, 
-    //   access_token,
-    //   linked_AccessToken:token.access_token,
-    //   linked_refreshToken:token.refresh_token
-    // })
     res.redirect(process.env.LOGIN_REDIRECT_URL)
   }
      
