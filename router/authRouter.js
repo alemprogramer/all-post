@@ -4,7 +4,7 @@ const {userSignupController,userLoginController,refreshTokenController,logOutCon
 
 router.post('/signup', userSignupController);
 router.post('/login', userLoginController);
-router.get('/refreshToken', refreshTokenController);
+router.post('/refreshToken', refreshTokenController);
 router.get('/logout', logOutController);
 
 
