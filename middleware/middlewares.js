@@ -18,8 +18,9 @@ const middleware = [
         credentials: true,
         origin: [
             'https://devfirmltd.com/',
-            'https://api.devfirmltd.com/',
-            'http://localhost:3001'
+            'https://api.devfirmltd.com',
+            'http://localhost:3001',
+            'https://post-all-frontend.vercel.app'
         ]}),
     cookieParser(),
     session({ 
