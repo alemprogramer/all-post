@@ -14,7 +14,13 @@ const middleware = [
     express.urlencoded({extended: false}),
     express.static('public'),
     morgan('dev'),
-    cors(),
+    cors({
+        credentials: true,
+        origin: [
+            'https://devfirmltd.com/',
+            'https://api.devfirmltd.com/',
+            'http://localhost:3001'
+        ]}),
     cookieParser(),
     session({ 
         secret: 'your-secret-key',
