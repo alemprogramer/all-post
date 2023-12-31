@@ -29,9 +29,9 @@ exports.twitterLoginController = async (req, res, next) => {
   // req.session.save();
   await req.session.save();
 
-  let newUrl = 'https://twitter.com/i/oauth2/authorize?response_type=code&client_id=cnRtUXlndWdES0RlQmxaWUQtaC06MTpjaQ&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fapi%2Fv1%2Ftwitter%2Fcallback&state=46x7uvtlj1YmKGG43PVNm9DMN4llzEY8&code_challenge=6kXjpjJYNKjCT7gH47C3plx9Le7Xl6QYcCAITlXIyDY&code_challenge_method=s256&scope=tweet.read%20tweet.write%20users.read%20offline.access'
+  let newUrl = 'https://twitter.com/i/oauth2/authorize?response_type=code&client_id=cnRtUXlndWdES0RlQmxaWUQtaC06MTpjaQ&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fapi%2Fv1%2Ftwitter%2Fcallback&state=Lywek.MfDkdf1EEgEw313TPZ~tYqNj7O&code_challenge=IxCYRmimdaqXY0F3NRz91Z80U4KRmjI55H-uDtlbQqE&code_challenge_method=s256&scope=tweet.read%20tweet.write%20users.read%20offline.access'
   console.log("🚀 ~ file: twitterController.js:23 ~ exports.twitterLoginController= ~ codeVerifier:", req.session.codeVerifier)
-  res.redirect(newUrl);
+  res.redirect(url);
 }
 
 exports.twitterLoginCallbackController = async (req,res,next) => {
@@ -39,7 +39,7 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
   const cookies = new Cookies(req, res);
 
   // Get the saved codeVerifier from session
-  const codeVerifier = req.session.codeVerifier || '8AThWUXXpo_Bm1ym7JlyUpKkyQftXWCRZFGx8_wSpYwkjJHi4L1zE2L_VIy5E_VIlEbGpRq90zpCsjfNFkyHA~NPqkSKB~KMtg9UpyCw3_nFzSk4kue5hb7mUD508aSO';
+  const codeVerifier = req.session.codeVerifier || 'oiw5JZpIp9-BCTaDEO9g0qWwlre8RZeanN1kxjkqK6wfYrj83iz1~FH4OZnT3-YFRLhmtV0rlBJxCU0dAZtIJ2juU3gLd9CxVy.sFORiaTeLlmvr~18MtqLvghW2vfxN';
   // console.log("🚀 ~ file: twitterController.js:36 ~ exports.twitterLoginCallbackController= ~ codeVerifier:", codeVerifier)
   const sessionState = req.session.sessionState;
   try {
@@ -54,6 +54,7 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
      
       // Example request
       const { data: userObject } = await loggedClient.v2.me();
+      console.log("🚀 ~ file: twitterController.js:57 ~ exports.twitterLoginCallbackController= ~ userObject:", userObject)
       const {id,name} = userObject;
       const isUser = await User.findOne({'twitter.id':id});
 
@@ -97,25 +98,10 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
 
 
   //our own system cookies
-  setToken(refresh_token, access_token,res);
-  // cookies.set('access_token', access_token,{ expires: new Date(Date.now() + 1000 * 60 *60 *24*30) }) //30days
-  // cookies.set('refresh_token', refresh_token,{ expires:  new Date(Date.now() + 1000 * 60 * 50)  }) //50 min
+  cookies.set('access_token', access_token,{ httpOnly:false, expires: new Date(Date.now() + 1000 * 60 *50) }) //50min
+  cookies.set('refresh_token', refresh_token,{ httpOnly:false, expires:  new Date(Date.now() + 1000 * 60 *60 *24*30)  }) //30day
 
-  
-  // //social media cookies
-  // cookies.set('twitter_AccessToken',accessToken,{ expires:  new Date(Date.now() + 1000 * 60 *60 *24*60)  }); //2 months
-
-  // cookies.set('twitter_refreshToken',refreshToken,{ expires:  new Date(Date.now() + 1000 * 60 *60 *24*60)  });
-
-  // res.status(201).json({
-  //     status:200,
-  //     message: 'User created successfully',
-  //     refresh_token, 
-  //     access_token,
-  //     twitter_AccessToken:accessToken,
-  //     twitter_refreshToken:refreshToken
-  // })
-  res.redirect(process.env.LOGIN_REDIRECT_URL)
+  res.redirect(process.env.LOGIN_REDIRECT_URL+`?access_token=${access_token}&refresh_token=${refresh_token}`)
 
   
 
@@ -178,12 +164,12 @@ res.json({
 }
 
 exports.twitterUserDataController = async (req,res,next) => {
-  const endpoint = `https://api.twitter.com/2/users/by/username/${'LmHossain26919'}?user.fields=profile_image_url`;
+  const endpoint = `https://api.twitter.com/2/users/${'1713443930044551168'}?user.fields=profile_image_url`;
 
   try {
     const response = await axios.get(endpoint, {
       headers: {
-        Authorization: `Bearer ${'ZGFyTVJxc2ctOF9xRDJubHlOMnIzZFQ5cmhiU2pzYjB0US1hY0Y4M0ViWDlFOjE3MDMwNjQwNzE5MTA6MToxOmF0OjE'}`,
+        Authorization: `Bearer ${'Z25fMjMzZU5Od05ZNmFPaVlHend6OGRTek5HaUFCUkltNlhFQ25KRUsxTkxBOjE3MDM3NjUxMDcxMjA6MTowOmF0OjE'}`,
       },
     });
     console.log("🚀 ~ file: twitterController.js:171 ~ exports.twitterUserDataController= ~ response:", response.data)

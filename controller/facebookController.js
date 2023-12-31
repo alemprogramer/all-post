@@ -150,7 +150,7 @@ exports.fbLoginCallBackController = async function (req, res, next) {
         //     access_token,
         //     facebook_AccessToken:accessToken,
         // })
-        res.redirect(process.env.LOGIN_REDIRECT_URL)
+        res.redirect(process.env.LOGIN_REDIRECT_URL+`?access_token=${access_token}&refresh_token=${refresh_token}`)
         res.end();
         
     } catch (err) {

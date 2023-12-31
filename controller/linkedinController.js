@@ -101,11 +101,10 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
     const access_token = createAccessToken({id: newUser.id}, process.env.ACCESS_TOKEN_SECRET,'50m');
 
     //our own system cookies
-    //our own system cookies
     cookies.set('access_token', access_token,{ httpOnly:false, expires: new Date(Date.now() + 1000 * 60 *50) }) //50min
     cookies.set('refresh_token', refresh_token,{ httpOnly:false, expires:  new Date(Date.now() + 1000 * 60 *60 *24*30) , sameSite: 'none', secure: true }) //30day
     
-    res.redirect(process.env.LOGIN_REDIRECT_URL)
+    res.redirect(process.env.LOGIN_REDIRECT_URL+`?access_token=${access_token}&refresh_token=${refresh_token}`)
   }
      
    
