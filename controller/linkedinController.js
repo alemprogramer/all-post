@@ -1,5 +1,5 @@
 const { AuthClient,RestliClient } = require('linkedin-api-client');
-var Cookies = require('cookies');
+
 const axios = require('axios');
 const User = require('../model/User');
 const {
@@ -35,8 +35,6 @@ exports.linkedinLoginController = async (req, res,next) => {
 
 exports.linkedinCallbackUrlController = async (req,res,next)=>{
   const { code } = req.query;
-  const cookies = new Cookies(req, res);
-
   try {
     const  token = await  authClient.exchangeAuthCodeForAccessToken(code)
     
@@ -71,11 +69,8 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
        const refresh_token = createRefreshToken({id: userInfo._id}, process.env.REFRESH_TOKEN_SECRET,'30d')
        const access_token = createAccessToken({id: userInfo._id}, process.env.ACCESS_TOKEN_SECRET,'50m');
 
-      //our own system cookies
-      cookies.set('access_token', access_token,{ httpOnly:false, expires: new Date(Date.now() + 1000 * 60 *50) }) //50min
-      cookies.set('refresh_token', refresh_token,{ httpOnly:false, expires:  new Date(Date.now() + 1000 * 60 *60 *24*30)  }) //30day
+       res.redirect(`${process.env.LOGIN_REDIRECT_URL}?access_token=${access_token}&refresh_token=${refresh_token}&linkedin_access_token=${token.access_token}; expires=${new Date(Date.now() + 1000 * 60 *60 *24*60)}`)
 
-      res.redirect(process.env.LOGIN_REDIRECT_URL)
 
     }else{
       //user signup 
@@ -100,11 +95,7 @@ exports.linkedinCallbackUrlController = async (req,res,next)=>{
     const refresh_token = createRefreshToken({id: newUser._id}, process.env.REFRESH_TOKEN_SECRET,'30d')
     const access_token = createAccessToken({id: newUser.id}, process.env.ACCESS_TOKEN_SECRET,'50m');
 
-    //our own system cookies
-    cookies.set('access_token', access_token,{ httpOnly:false, expires: new Date(Date.now() + 1000 * 60 *50) }) //50min
-    cookies.set('refresh_token', refresh_token,{ httpOnly:false, expires:  new Date(Date.now() + 1000 * 60 *60 *24*30) , sameSite: 'none', secure: true }) //30day
-    
-    res.redirect(process.env.LOGIN_REDIRECT_URL+`?access_token=${access_token}&refresh_token=${refresh_token}`)
+    res.redirect(`${process.env.LOGIN_REDIRECT_URL}?access_token=${access_token}&refresh_token=${refresh_token}&linkedin_access_token=${token.access_token}; expires=${new Date(Date.now() + 1000 * 60 *60 *24*60)}`)
   }
      
    

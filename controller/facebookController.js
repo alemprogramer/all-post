@@ -1,6 +1,5 @@
 const fbLongLiveAccess = require('../utils/token');
 const { SuperfaceClient } = require('@superfaceai/one-sdk');
-const Cookies = require('cookies')
 
 const User = require('../model/User');
 const FaceBook = require('../model/Facebook');
@@ -24,7 +23,7 @@ exports.fbLongLiveAccessTokenController = async (req,res,next)=>{
 }
 
 exports.fbLoginCallBackController = async function (req, res, next) {
-    const cookies = new Cookies(req, res);
+    
     try {
       // <8> Obtaining profiles
     //   console.log('long live token',await fbLongLiveAccess(req.user.accessToken));
@@ -136,22 +135,13 @@ exports.fbLoginCallBackController = async function (req, res, next) {
         const refresh_token = createRefreshToken({id: userIdForToken}, process.env.REFRESH_TOKEN_SECRET,'30d')
         const access_token = createAccessToken({id: userIdForToken}, process.env.ACCESS_TOKEN_SECRET,'50m');
 
-        //our own system cookies
-        cookies.set('access_token', access_token,{ httpOnly:false, expires: new Date(Date.now() + 1000 * 60  ) }) //50 min
-        cookies.set('refresh_token', refresh_token,{ httpOnly:false, expires:  new Date(Date.now() + 1000 * 60 *60 *24*30 )}) //30days
-        
+    
         //social media cookies
-        cookies.set('facebook_AccessToken',accessToken,{ httpOnly:true, expires:  new Date(Date.now() + 1000 * 60 *60 *24*90)  }); //3 months
+       
 
-        // res.status(201).json({
-        //     status:200,
-        //     message: 'User created successfully by facebook',
-        //     refresh_token, 
-        //     access_token,
-        //     facebook_AccessToken:accessToken,
-        // })
-        res.redirect(process.env.LOGIN_REDIRECT_URL+`?access_token=${access_token}&refresh_token=${refresh_token}`)
-        res.end();
+        
+        res.redirect(`${process.env.LOGIN_REDIRECT_URL}?access_token=${access_token}&refresh_token=${refresh_token}&facebook_AccessToken=${accessToken}; expires=${new Date(Date.now() + 1000 * 60 *60 *24*90)}`)
+
         
     } catch (err) {
       next(err);
