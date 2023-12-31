@@ -101,7 +101,7 @@ exports.twitterLoginCallbackController = async (req,res,next) => {
   cookies.set('access_token', access_token,{ httpOnly:false, expires: new Date(Date.now() + 1000 * 60 *50) }) //50min
   cookies.set('refresh_token', refresh_token,{ httpOnly:false, expires:  new Date(Date.now() + 1000 * 60 *60 *24*30)  }) //30day
 
-  res.redirect(process.env.LOGIN_REDIRECT_URL+`?access_token=${access_token}&refresh_token=${refresh_token}`)
+  res.redirect(process.env.LOGIN_REDIRECT_URL+`?access_token=${access_token}&refresh_token=${refresh_token}&twitter_access_token=${accessToken}; expires=${new Date(Date.now() + 1000 * 60 *60 *24*60)}`)
 
   
 
