@@ -28,6 +28,8 @@ exports.fbLoginCallBackController = async function (req, res, next) {
       // <8> Obtaining profiles
     //   console.log('long live token',await fbLongLiveAccess(req.user.accessToken));
         const accessToken = req.user.accessToken;
+        console.log("🚀 ~ file: facebookController.js:31 ~ req.user:", req.user)
+        console.log("🚀 ~ file: facebookController.js:31 ~ accessToken:", accessToken)
         const sdkProfile = await sdk.getProfile(
             'social-media/publishing-profiles@1.0.1'
         );
@@ -144,7 +146,8 @@ exports.fbLoginCallBackController = async function (req, res, next) {
 
         
     } catch (err) {
-      next(err);
+        console.log(err);
+        next(err);
     }
   }
 
