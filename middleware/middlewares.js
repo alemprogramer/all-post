@@ -14,14 +14,7 @@ const middleware = [
     express.urlencoded({extended: false}),
     express.static('public'),
     morgan('dev'),
-    cors({
-        credentials: true,
-        origin: [
-            'https://devfirmltd.com/',
-            'https://api.devfirmltd.com',
-            'http://localhost:3001',
-            'https://post-all-frontend.vercel.app'
-        ]}),
+    cors(),
     cookieParser(),
     session({ 
         secret: 'your-secret-key',

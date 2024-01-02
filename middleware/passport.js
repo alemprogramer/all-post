@@ -14,8 +14,10 @@ passport.use(new FacebookStrategy({
   state: true
 },
 
+//https://www.facebook.com/v13.0/dialog/oauth?client_id=5109107729167022&redirect_uri=https://devfirmltd.com/api/facebook/callback&scope=email,public_profile,pages_show_list,pages_read_user_content,instagram_basic,instagram_content_publish
+
 async  function (accessToken, refreshToken, profile, done) {
-    // console.log("🚀 ~ file: passport.js:17 ~ profile:", profile)
+    console.log("🚀 ~ file: passport.js:17 ~ profile:", profile)
     return done(null,{ profile, accessToken });
   }
 ));

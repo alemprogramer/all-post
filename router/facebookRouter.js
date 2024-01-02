@@ -6,7 +6,7 @@ const { fbLongLiveAccessTokenController,fbLoginCallBackController,facebookPostCo
 router.get('/groups',facebookGroupDataCollectController)
 router.get('/fb-refresh-token', fbLongLiveAccessTokenController);
 router.get('/login',passport.authenticate('facebook'));
-router.get('/callback', passport.authenticate('facebook'),fbLoginCallBackController);
+router.post('/callback',fbLoginCallBackController);
 router.get('/post',facebookPostController);
 
 

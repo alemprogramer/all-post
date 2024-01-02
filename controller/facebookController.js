@@ -27,8 +27,8 @@ exports.fbLoginCallBackController = async function (req, res, next) {
     try {
       // <8> Obtaining profiles
     //   console.log('long live token',await fbLongLiveAccess(req.user.accessToken));
-        const accessToken = req.user.accessToken;
-        console.log("🚀 ~ file: facebookController.js:31 ~ req.user:", req.user)
+        const accessToken = req.body.user.access_token;
+        console.log("🚀 ~ file: facebookController.js:31 ~ req.user:", req.body.user)
         console.log("🚀 ~ file: facebookController.js:31 ~ accessToken:", accessToken)
         const sdkProfile = await sdk.getProfile(
             'social-media/publishing-profiles@1.0.1'
@@ -49,7 +49,7 @@ exports.fbLoginCallBackController = async function (req, res, next) {
 
         //new code 
         const pageList = facebookPageList.data.data;
-        const {id,displayName,photos} = req.user.profile
+        const {id,displayName,photos} = req.body.user.profile
         
         //page list formatter
         const listOfPage = []
@@ -142,7 +142,7 @@ exports.fbLoginCallBackController = async function (req, res, next) {
        
 
         
-        res.redirect(`${process.env.LOGIN_REDIRECT_URL}?access_token=${access_token}&refresh_token=${refresh_token}&facebook_AccessToken=${accessToken}; expires=${new Date(Date.now() + 1000 * 60 *60 *24*90)}`)
+        res.send(`${process.env.LOGIN_REDIRECT_URL}?access_token=${access_token}&refresh_token=${refresh_token}&facebook_AccessToken=${accessToken}; expires=${new Date(Date.now() + 1000 * 60 *60 *24*90)}`)
 
         
     } catch (err) {
