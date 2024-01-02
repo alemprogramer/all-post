@@ -113,7 +113,7 @@ exports.fbLoginCallBackController = async function (req, res, next) {
                 id:id,
                 name:displayName,
                 accessToken: accessToken,
-                profilePic: photos.value,
+                // profilePic: photos.value,
                 pages: listOfPage || [],
                 groups:[],
                 accessTokenExpire: ExpireDate
