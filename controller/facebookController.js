@@ -25,20 +25,21 @@ exports.fbLongLiveAccessTokenController = async (req, res, next) => {
 exports.fbLoginCallBackController = async function (req, res, next) {
 
     try {
-        
+
         // get token form facebook
         const tokenResponse = await axios.get(
             `https://graph.facebook.com/v22.0/oauth/access_token?client_id=${process.env.FACEBOOK_APP_ID}&client_secret=${process.env.FACEBOOK_APP_SECRET}&redirect_uri=${process.env.FACEBOOK_CALLBACK_URL}&code=${req.query.code}`
         );
-        const accessToken = await fbLongLiveAccess(tokenResponse.data.access_token);
+        // const accessToken = await fbLongLiveAccess(tokenResponse.data.access_token);
+        const accessToken = tokenResponse.data.access_token;
 
         const userData = await axios.get(`https://graph.facebook.com/v22.0/me?fields=email,name,picture&access_token=${accessToken}`);
-        const {email,name, picture,id} = userData.data
+        const { email, name, picture, id } = userData.data
         // console.log("🚀 ~ userData:", email, name, picture,id)
         console.log('all ok');
 
         const facebookPageList = await axios.get(`${process.env.FACEBOOK_API_URL}/me/accounts?fields=instagram_business_account{name},picture,name,category,access_token&access_token=${accessToken}`)
-       
+
 
         //new code 
         const pageList = facebookPageList.data.data;
@@ -46,35 +47,35 @@ exports.fbLoginCallBackController = async function (req, res, next) {
         //page list formatter
         const listOfPage = []
         for (let i = 0; i < pageList.length; i++) {
-            if(pageList[i].instagram_business_account) {
-                const {id,name} = pageList[i].instagram_business_account
-                const {profile_picture_url} = await axios.get(`${process.env.FACEBOOK_API_URL}/${id}?fields=profile_picture_url&access_token=${accessToken}`)
+            if (pageList[i].instagram_business_account) {
+                const { id, name } = pageList[i].instagram_business_account
+                const { profile_picture_url } = await axios.get(`${process.env.FACEBOOK_API_URL}/${id}?fields=profile_picture_url&access_token=${accessToken}`)
 
                 let obj = {
-                    id:pageList[i].id,
+                    id: pageList[i].id,
                     pageName: pageList[i].name,
-                    profilePic:pageList[i].picture.data.url,
-                    pageCategory:pageList[i].category,
-                    accessToken:pageList[i].access_token,
-                    instagram:{
-                        instagramName:name || "",
-                        profilePic:profile_picture_url || "",
+                    profilePic: pageList[i].picture.data.url,
+                    pageCategory: pageList[i].category,
+                    accessToken: pageList[i].access_token,
+                    instagram: {
+                        instagramName: name || "",
+                        profilePic: profile_picture_url || "",
                         id,
-                        accessToken:accessToken,
-                        permission:true,
+                        accessToken: accessToken,
+                        permission: true,
                     }
                 }
                 listOfPage.push(obj)
 
-            }else{
-            let obj = {
-                id: pageList[i].id,
-                pageName: pageList[i].name,
-                profilePic: pageList[i].picture.data.url,
-                pageCategory: pageList[i].category,
-                accessToken: pageList[i].access_token,
-            }
-            listOfPage.push(obj)
+            } else {
+                let obj = {
+                    id: pageList[i].id,
+                    pageName: pageList[i].name,
+                    profilePic: pageList[i].picture.data.url,
+                    pageCategory: pageList[i].category,
+                    accessToken: pageList[i].access_token,
+                }
+                listOfPage.push(obj)
             }
         }
 
@@ -83,6 +84,8 @@ exports.fbLoginCallBackController = async function (req, res, next) {
         const isUser = await Facebook.findOne({ id })
         let userIdForToken = '';
         if (isUser) {
+            console.log('update');
+            
             const { userId, _id } = isUser;
             const update = {
                 $set: {
@@ -94,11 +97,11 @@ exports.fbLoginCallBackController = async function (req, res, next) {
             userIdForToken = userId
 
         } else {
-            console.log('login');
+            console.log('new login');
 
             const facebook = new FaceBook({
                 id: id,
-                name: displayName,
+                name: name,
                 accessToken: accessToken,
                 // profilePic: photos.value,
                 pages: listOfPage || [],
@@ -108,18 +111,24 @@ exports.fbLoginCallBackController = async function (req, res, next) {
 
             const fbUser = await facebook.save();
 
-            const user = new User({
-                name: displayName,
-                linkedin: {},
-                facebook: [fbUser._id]
-            })
+            let user = await User.findOne({ email });
+            if (!user) {
+                 user = new User({
+                    email,
+                    name,
+                    linkedin: {},
+                    facebook: [fbUser._id]
+                })
 
-            let newUser = await user.save();
+                 user = await user.save();
+            }
+
+
 
             const facebookData = await Facebook.findById(fbUser._id);
-            facebookData.userId = newUser._id;
+            facebookData.userId = user._id;
             await facebookData.save();
-            userIdForToken = newUser._id;
+            userIdForToken = user._id;
         }
         const refresh_token = createRefreshToken({ id: userIdForToken }, process.env.REFRESH_TOKEN_SECRET, '30d')
         const access_token = createAccessToken({ id: userIdForToken }, process.env.ACCESS_TOKEN_SECRET, '50m');
