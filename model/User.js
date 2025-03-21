@@ -22,21 +22,12 @@ const userSchema = new Schema(
       accessTokenExpire: Number,
       twitterProfile: String,
     },
-    
-    
-
-    //linkedin
-    linkedEmail: String,
-    linkedin: {
-      email: String,
-      name: String,
-      proPic: String,
-      accessToken: String,
-      expiresInAccessToken: Number,
-      refreshToken: String,
-      expiresInRefreshToken: Number,
-      userId: String,
-    },
+    linkedin: [
+      {
+        type:Schema.Types.ObjectId,
+        ref: 'Linkedin',
+      }
+    ],
     facebook: [
       {
         type: Schema.Types.ObjectId,
