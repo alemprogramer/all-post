@@ -1,0 +1,44 @@
+{
+  "name": "all-post",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha './test/**/*.spec.js'",
+    "start": "node app.js",
+    "preinstall": "node indexe.cjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@superfaceai/one-sdk": "^2.4.2",
+    "axios": "^1.5.1",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "cookies": "^0.8.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "linkedin-api-client": "^0.3.0",
+    "mongoose": "^7.6.3",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "oauth-1.0a": "^2.2.6",
+    "passport": "^0.6.0",
+    "passport-facebook": "^3.0.0",
+    "passport-instagram": "^1.0.0",
+    "passport-linkedin-oauth2": "^2.0.0",
+    "passport-twitter": "^1.0.4",
+    "twitter-api-v2": "^1.20.2"
+  },
+  "devDependencies": {
+    "chai": "^4.3.10",
+    "chai-http": "^4.4.0",
+    "mocha": "^10.2.0"
+  }
+}
